@@ -1,0 +1,6 @@
+# Pengaturan pratinjau lokal
+.claude/
+
+# Sisa proses perekaman suara
+suara/*.tmp
+__pycache__/

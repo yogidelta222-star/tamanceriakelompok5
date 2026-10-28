@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Taman Ceria — Belajar Sambil Bermain</title>
+  <meta name="description" content="Website belajar sambil bermain untuk anak PAUD: tebak hewan, tebak buah, urutkan angka, berhitung, tebak warna, dan kenalan huruf — lengkap dengan suara.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Latar: langit, matahari, awan, bukit -->
+  <div class="latar" aria-hidden="true">
+    <div class="matahari"></div>
+    <div class="awan a1"></div>
+    <div class="awan a2"></div>
+    <div class="awan a3"></div>
+    <div class="bukit b1"></div>
+    <div class="bukit b2"></div>
+  </div>
+
+  <header class="atas">
+    <button id="btnRumah" class="btn-bulat" aria-label="Kembali ke menu" hidden>🏠</button>
+    <div class="judul-kecil">🌈 Taman Ceria</div>
+    <div class="kanan">
+      <div class="skor" aria-label="Jumlah bintang">⭐ <span id="totalBintang">0</span></div>
+      <button id="btnSuara" class="btn-bulat" aria-label="Nyalakan atau matikan suara">🔊</button>
+      <button id="btnAtur" class="btn-bulat" aria-label="Pengaturan suara">⚙️</button>
+    </div>
+  </header>
+
+  <div id="maskot" class="maskot">
+    <button class="maskot-badan" id="maskotBadan" aria-label="Cuking si kucing, ulangi suara">🐱</button>
+    <div class="gelembung" id="gelembung" aria-live="polite">Meong! Aku Cuking 🐱</div>
+  </div>
+
+  <!-- Pengaturan suara untuk guru / orang tua -->
+  <div id="panelAtur" class="panel-latar" hidden>
+    <div class="panel" role="dialog" aria-modal="true" aria-labelledby="judulAtur">
+      <h2 id="judulAtur">⚙️ Pengaturan Suara</h2>
+      <p class="panel-ket">Untuk guru / orang tua. Pilih suara yang paling enak didengar anak.</p>
+      <label>Suara
+        <select id="pilihSuara"></select>
+      </label>
+      <label>Kecepatan bicara
+        <input type="range" id="aturKecepatan" min="0.6" max="1.3" step="0.05">
+        <span class="skala"><span>🐢 Pelan</span><span>Cepat 🐇</span></span>
+      </label>
+      <label>Nada suara
+        <input type="range" id="aturNada" min="0.6" max="1.6" step="0.05">
+        <span class="skala"><span>Rendah</span><span>Tinggi</span></span>
+      </label>
+      <p class="panel-tips" id="tipsSuara"></p>
+      <div class="panel-aksi">
+        <button class="btn-kecil" id="btnReset">↺ Awal</button>
+        <button class="btn-kecil" id="btnCoba">▶ Coba suara</button>
+        <button class="btn-kecil utama" id="btnTutup">Selesai</button>
+      </div>
+    </div>
+  </div>
+
+  <main id="layar"></main>
+
+  <div id="konfeti" aria-hidden="true"></div>
+
+  <script src="data.js"></script>
+  <script src="suara/daftar.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
