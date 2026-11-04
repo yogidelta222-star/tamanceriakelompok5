@@ -71,11 +71,15 @@ async def utama() -> None:
             print(f'{selesai}/{len(kalimat)}', flush=True)
             WAKTU.write_text(json.dumps(waktu, indent=0), encoding='utf-8')
 
-    peta = {k: [nama_berkas(k), waktu[nama_berkas(k)]] for k in kalimat
+    # Rekaman ElevenLabs menyimpan [mulai, selesai]; rekaman Gadis hanya detik selesai
+    def entri(b):
+        w = waktu[b]
+        return [b, w[1], w[0]] if isinstance(w, list) else [b, w]
+    peta = {k: entri(nama_berkas(k)) for k in kalimat
             if (FOLDER / nama_berkas(k)).exists() and nama_berkas(k) in waktu}
 
     # Hapus rekaman lama yang kalimatnya sudah tidak dipakai
-    dipakai = {berkas for berkas, _ in peta.values()}
+    dipakai = {e[0] for e in peta.values()}
     for berkas in FOLDER.glob('*.mp3'):
         if berkas.name not in dipakai:
             berkas.unlink()

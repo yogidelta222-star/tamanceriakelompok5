@@ -142,9 +142,9 @@
         jaga = setTimeout(lanjutkan, (2000 + k.length * 120) / cepat);
         const klip = rekaman && KLIP_SUARA[k];
         if (klip) {
-          const [berkas, selesaiDetik] = Array.isArray(klip) ? klip : [klip, null];
-          // Rekaman diawali hening ±0,25 detik dan diakhiri hening ±0,9 detik; keduanya dilewati
-          const a = new Audio(`suara/${berkas}#t=${AWAL_KLIP}`);
+          const [berkas, selesaiDetik, mulaiDetik] = Array.isArray(klip) ? klip : [klip, null];
+          // Hening di awal & akhir rekaman dilewati (detik mulai dari daftar.js bila ada)
+          const a = new Audio(`suara/${berkas}#t=${mulaiDetik ?? AWAL_KLIP}`);
           a.playbackRate = cepat;
           a.onended = lanjutkan;
           if (selesaiDetik) {
@@ -177,6 +177,25 @@
       u.onerror = lanjut;
       this.u = u; // simpan referensi agar tidak dibuang browser
       setTimeout(() => { if (id === this.id) speechSynthesis.speak(u); }, 40);
+    },
+
+    // Putar rekaman suara hewan asli (bisa dihentikan oleh ucapan berikutnya, seperti kalimat biasa)
+    bunyi(berkas, selesai) {
+      const id = ++this.id;
+      this.hentikan();
+      let beres = false;
+      const akhiri = () => {
+        if (beres || id !== this.id) return;
+        beres = true;
+        if (selesai) selesai();
+      };
+      if (!this.aktif || !berkas) { setTimeout(akhiri, 50); return; }
+      setTimeout(akhiri, 5000);
+      const a = new Audio(berkas);
+      a.onended = akhiri;
+      a.onerror = akhiri;
+      this.audio = a;
+      a.play().catch(akhiri);
     },
 
     hentikan() {
@@ -225,7 +244,6 @@
     benar() { [523, 659, 784, 1047].forEach((f, i) => this.nada(f, i * 0.08, 0.25, 'triangle', 0.2)); },
     salah() { this.nada(320, 0, 0.35, 'sine', 0.22, 150); },
     tut() { this.nada(587, 0, 0.3, 'square', 0.05); this.nada(494, 0.38, 0.55, 'square', 0.05); },
-    roket() { this.nada(120, 0, 1.6, 'sawtooth', 0.05, 900); },
     menang() { [523, 523, 659, 784, 659, 784, 1047].forEach((f, i) => this.nada(f, i * 0.13, 0.3, 'triangle', 0.2)); },
   };
 
@@ -295,9 +313,15 @@
 
   // ---------- Potongan HTML ----------
   const emojiHTML = (e) => `<span class="emoji">${e}</span>`;
+  // Foto asli bila tersedia (gambar/...), kalau belum ada tetap memakai emoji
+  const gambarHTML = (x) => (x.gambar
+    ? `<img class="foto" src="${x.gambar}" alt="${x.nama}" draggable="false">`
+    : emojiHTML(x.emoji));
   const catHTML = (hex) => `<span class="cat" style="--c:${hex}"></span>`;
   const bentukHTML = (b, c) => `<svg class="bentuk" viewBox="0 0 100 100" style="--c:${c}" aria-hidden="true">${b.svg}</svg>`;
-  const gambarTanya = (e) => `<div class="gambar-tanya">${e}</div>`;
+  const gambarTanya = (e, foto) => (foto
+    ? `<div class="gambar-tanya"><img class="foto" src="${foto}" alt="" draggable="false"></div>`
+    : `<div class="gambar-tanya">${e}</div>`);
   const bendaHTML = (b, n) => Array.from({ length: n }, () => `<button class="benda" aria-label="${b.nama}">${b.emoji}</button>`).join('');
   const angkaHTML = (n) => {
     const c = WARNA_ANGKA[(n - 1) % 10];
@@ -310,6 +334,7 @@
 
   function tampil(html, rumah = true) {
     hapusTimer();
+    tutupDongeng();
     layar.innerHTML = html;
     layar.classList.remove('masuk');
     void layar.offsetWidth;
@@ -331,10 +356,7 @@
     $('#btnMulai').addEventListener('click', () => {
       Sfx.siap();
       Sfx.benar();
-      layarMenu({
-        ucap: 'Meong! Halo teman! Aku Cuking, si kucing. Ayo kita belajar sambil bermain! Pilih gambarnya ya!',
-        tulis: 'Meong! Halo teman, aku Cuking 🐱 Ayo pilih permainan!',
-      });
+      layarCerita('pembukaan', () => layarMenu());
       setTimeout(() => {
         if (!('speechSynthesis' in window)) pesan('🔇 Browser ini belum mendukung suara. Coba pakai Google Chrome atau Microsoft Edge.');
         else if (!Suara.adaRekaman && !Suara.adaIndonesia) pesan('🔇 Suara Bahasa Indonesia belum tersedia di browser ini. Buka website dengan Google Chrome atau Microsoft Edge (tersambung internet) agar Cuking bisa bicara.');
@@ -342,38 +364,115 @@
     });
   }
 
-  function layarMenu(sapaan) {
+  // ================= PROGRES PETUALANGAN =================
+  // Pos yang sudah diselesaikan, disimpan di perangkat: { belajar: true, hewan: true, ... }
+  let progres = simpan.ambil('tc_progres', {}) || {};
+  const sudahSelesai = (id) => !!progres[id];
+  const jumlahSelesai = () => MENU.filter((m) => progres[m.id]).length;
+  const semuaSelesai = () => jumlahSelesai() === MENU.length;
+  const posBerikut = () => MENU.find((m) => !progres[m.id]);
+  // Mengembalikan true bila pos ini baru saja selesai untuk pertama kali
+  function tandaiSelesai(id) {
+    if (progres[id]) return false;
+    progres[id] = true;
+    simpan.taruh('tc_progres', progres);
+    return true;
+  }
+  // Cerita yang sudah pernah dibacakan utuh; sesudahnya cukup versi singkat
+  const ceritaDilihat = simpan.ambil('tc_cerita', {}) || {};
+
+  // Layar cerita: dibacakan Cuking sebelum masuk pos, juga untuk pembukaan & penutup
+  function layarCerita(id, lanjut) {
     main = null;
+    const c = CERITA[id];
+    const utuh = !ceritaDilihat[id] || !c.singkat;
+    ceritaDilihat[id] = true;
+    simpan.taruh('tc_cerita', ceritaDilihat);
+    const penutup = id === 'penutup';
+    tampil(`
+      <section class="cerita ${penutup ? 'cerita-penutup' : ''}">
+        <div class="cerita-ikon">${c.ikon}</div>
+        <p class="cerita-sub">${c.sub}</p>
+        <h2 class="cerita-judul">${c.judul}</h2>
+        <div class="cerita-teks">${c.teks.map((p) => `<p>${p}</p>`).join('')}</div>
+        <div class="aksi">
+          ${penutup
+            ? `<button class="btn-besar btn-oranye" id="btnUlangPetualangan">🔁 Main Lagi dari Awal</button>
+               <button class="btn-besar btn-biru" id="btnPeta">🗺️ Lihat Peta</button>`
+            : `<button class="btn-besar btn-main" id="btnLanjut">${c.tombol || '▶ Mulai'}</button>`}
+        </div>
+      </section>`, id !== 'pembukaan');
+    if (penutup) {
+      Sfx.menang();
+      konfeti();
+      $('#btnUlangPetualangan').addEventListener('click', () => {
+        Sfx.pop();
+        progres = {};
+        simpan.taruh('tc_progres', progres);
+        layarMenu();
+      });
+      $('#btnPeta').addEventListener('click', () => { Sfx.pop(); layarMenu(); });
+    } else {
+      $('#btnLanjut').addEventListener('click', () => { Sfx.pop(); Suara.diam(); lanjut(); });
+    }
+    Suara.bicara(utuh ? c.teks.join(' ') : c.singkat, { tulis: utuh ? `${c.ikon} ${c.judul}` : c.singkat, gaya: 'senang' });
+  }
+
+  // Peta Petualangan: pos berurutan sesuai cerita, semua bisa dibuka bebas
+  function layarMenu() {
+    main = null;
+    const selesai = jumlahSelesai();
+    const berikut = posBerikut();
+    const [utama, ...lain] = MENU;
+    const status = (m) => (sudahSelesai(m.id) ? 'selesai' : m === berikut ? 'berikut' : '');
+    const lencana = (m, i) => `<span class="pos-no">${sudahSelesai(m.id) ? '✓' : i + 1}</span>${m === berikut ? '<span class="pos-ajak">Ayo ke sini!</span>' : ''}`;
     tampil(`
       <section class="menu">
-        <h2 class="judul">Mau main apa hari ini?</h2>
+        <div class="peta-kepala">
+          <h2 class="judul-sub">🗺️ Peta Petualangan</h2>
+          <div class="peta-progres" role="img" aria-label="${selesai} dari ${MENU.length} pos selesai">
+            <div class="peta-isi" style="width:${(selesai / MENU.length) * 100}%"></div>
+            <span>${selesai} / ${MENU.length} pos selesai</span>
+          </div>
+        </div>
+        <button class="tile-utama ${status(utama)}" data-id="${utama.id}" style="--c:${utama.warna}">
+          ${lencana(utama, 0)}
+          <span class="ikon">${utama.ikon}</span>
+          <span class="teks">
+            <span class="nama">${utama.nama}</span>
+            <span class="ket">${utama.ket}</span>
+            <span class="contoh">${utama.contoh}</span>
+          </span>
+          <span class="ajak">▶ Ayo mulai!</span>
+        </button>
         <div class="grid-menu">
-          ${MENU.map((m, i) => `
-            <button class="tile" data-id="${m.id}" style="--c:${m.warna};--d:${i * 0.1}s">
-              <span class="ikon">${m.ikon}</span><span class="nama">${m.nama}</span>
+          ${lain.map((m, i) => `
+            <button class="tile ${status(m)}" data-id="${m.id}" style="--c:${m.warna};--d:${0.15 + i * 0.08}s">
+              ${lencana(m, i + 1)}<span class="ikon">${m.ikon}</span><span class="nama">${m.nama}</span>
             </button>`).join('')}
+          <button class="tile pos-akhir ${semuaSelesai() ? 'terbuka' : ''}" id="posAkhir" style="--d:${0.15 + lain.length * 0.08}s">
+            <span class="ikon">${semuaSelesai() ? '🎉' : '🏁'}</span><span class="nama">Hore, Kita Berhasil!</span>
+          </button>
         </div>
       </section>`, false);
-    $$('.tile', layar).forEach((b) => b.addEventListener('click', () => {
+    $$('[data-id]', layar).forEach((b) => b.addEventListener('click', () => {
       Sfx.pop();
-      if (b.dataset.id === 'belajar') layarBelajar('hewan', true);
-      else mulaiGame(b.dataset.id);
+      const id = b.dataset.id;
+      layarCerita(id, () => (id === 'belajar' ? layarBelajar('hewan') : mulaiGame(id)));
     }));
-    if (sapaan) Suara.bicara(sapaan.ucap, { tulis: sapaan.tulis, gaya: 'senang' });
-    else Suara.bicara('Mau main apa hari ini? Pilih gambarnya ya!', { tulis: 'Mau main apa? Pilih gambarnya ya! 👇' });
+    $('#posAkhir').addEventListener('click', () => {
+      Sfx.pop();
+      if (semuaSelesai()) layarCerita('penutup');
+      else {
+        const sisa = MENU.length - jumlahSelesai();
+        Suara.bicara(`Selesaikan semua pos dulu, ya! Masih ada ${kata(sisa)} pos lagi.`, { tulis: `Selesaikan semua pos dulu ya! Tinggal ${sisa} pos lagi 💪` });
+      }
+    });
+    if (berikut) Suara.bicara(`Ayo lanjut ke ${berikut.nama}!`, { tulis: `Ayo lanjut ke ${berikut.nama}! 👇` });
+    else Suara.bicara('Hore, semua pos sudah selesai! Sentuh bendera untuk melihat kejutannya!', { tulis: 'Hore, semua pos sudah selesai! 🎉' });
   }
 
   // ================= PERMAINAN =================
-  const INTRO = {
-    hewan: 'Ayo tebak hewan!',
-    buah: 'Ayo tebak buah!',
-    warna: 'Ayo tebak warna!',
-    bentuk: 'Ayo tebak bentuk!',
-    huruf: 'Ayo tebak huruf!',
-    hitung: 'Ayo berhitung bersama!',
-    urut: 'Tut tuut! Ayo bantu kereta.',
-  };
-
   function mulaiGame(jenis) {
     main = { jenis, no: 0, total: 5, dipakai: new Set(), kunci: false, salah: 0, tipeLalu: null };
     soalBerikut();
@@ -424,6 +523,10 @@
     }
     return kocok([...s]);
   };
+  // Pilihan berupa tulisan nama (+ tombol 🔊): teks yang tampil, dengar = yang diucapkan
+  const opsiNama = (list, t, no, nama, salah, saring) => buatOpsi(list, t, no < 2 ? 3 : 4, saring).map((x) => ({
+    benar: x === t, teks: nama(x), dengar: `${besarAwal(nama(x))}.`, salah: salah(x),
+  }));
   const kartuAngka = (x, n) => ({
     benar: x === n, html: `<span class="num" style="--c:${WARNA_ANGKA[x - 1]}">${x}</span>`, label: kata(x), salah: `Itu angka ${kata(x)}.`,
   });
@@ -433,130 +536,68 @@
 
   // Pembuat soal pilihan ganda: mengembalikan { ucap, tulis, pilihan[], benar, atas? }
   const PEMBUAT = {
+    // Soal dari petunjuk dongeng; hewan yang dongengnya sudah didengar didahulukan
     hewan(no) {
       const jml = no < 2 ? 3 : 4;
-      const tipe = pilihTipe(no < 2 ? ['nama', 'suara'] : ['nama', 'suara', 'ciri', 'tempat', 'ukuran', 'bukan']);
-      const opsi = (t, saring) => buatOpsi(HEWAN, t, jml, saring).map((h) => ({
-        benar: h === t, html: emojiHTML(h.emoji), label: h.nama, salah: `Itu ${h.nama}.`,
-      }));
-
-      if (tipe === 'suara') {
-        const t = ambilBaru(HEWAN, { saring: (h) => h.suara });
-        return { ucap: `Hewan apa yang bunyinya, ${t.suara}?`, tulis: `Siapa yang bunyinya "${t.suara}"? 🔊`, pilihan: opsi(t), benar: `Ini ${t.nama}. Bunyinya, ${t.suara}!` };
-      }
-      if (tipe === 'ciri') {
-        const t = ambilBaru(HEWAN);
-        return { ucap: `Hewan apa yang ${t.ciri}?`, tulis: `Siapa yang ${t.ciri}? 🤔`, pilihan: opsi(t), benar: `Ini ${t.nama}. ${besarAwal(t.nama)} ${t.ciri}.` };
-      }
-      if (tipe === 'tempat') {
-        const t = ambilBaru(HEWAN, { saring: (h) => h.tempat });
-        const saring = t.tempat === 'darat' ? (h) => h.tempat === 'air' : (h) => h.tempat && h.tempat !== t.tempat;
-        const T = TEMPAT[t.tempat];
-        return { ucap: `Mana hewan yang ${T.tanya}?`, tulis: `Mana hewan yang ${T.tanya}? ${T.ikon}`, pilihan: opsi(t, saring), benar: `Ini ${t.nama}. ${besarAwal(t.nama)} ${T.tanya}.` };
-      }
-      if (tipe === 'ukuran') {
-        const besar = Math.random() < 0.5;
-        const t = ambilBaru(HEWAN, { saring: (h) => (besar ? h.ukuran >= 4 : h.ukuran === 1) });
-        const sifat = besar ? 'paling besar' : 'paling kecil';
-        return {
-          ucap: `Mana hewan yang ${sifat}?`, tulis: `Mana hewan yang ${sifat}? ${besar ? '🐘' : '🐜'}`,
-          pilihan: opsi(t, (h) => (besar ? h.ukuran <= t.ukuran - 2 : h.ukuran >= 3)),
-          benar: `${besarAwal(t.nama)} yang ${sifat}.`,
-        };
-      }
-      if (tipe === 'bukan') {
-        const t = ambilBaru([...BUAH, ...BENDA_LAIN], { ruang: 'bukan-hewan' });
-        return {
-          ucap: 'Mana yang bukan hewan?', tulis: 'Mana yang BUKAN hewan? 🤔',
-          pilihan: kocok([t, ...kocok(HEWAN).slice(0, jml - 1)]).map((x) => ({
-            benar: x === t, html: emojiHTML(x.emoji), label: x.nama, salah: `Itu ${x.nama}. ${besarAwal(x.nama)} itu hewan.`,
-          })),
-          benar: `Ini ${t.nama}. ${besarAwal(t.nama)} bukan hewan.`,
-        };
-      }
-      const t = ambilBaru(HEWAN);
+      const didengar = (h) => dongengDidengar.has(h.nama);
+      const masihAda = HEWAN.some((h) => didengar(h) && !main.dipakai.has('hewan:' + h.nama));
+      const t = ambilBaru(HEWAN, masihAda ? { saring: didengar } : {});
+      const d = DONGENG[t.nama];
+      const p = acak(d.petunjuk);
+      const mirip = new Set(MIRIP_HEWAN.filter((g) => g.includes(t.nama)).flat());
       return {
-        ucap: `Mana ${t.nama}?`, tulis: `Mana ${t.nama}? 🔍`, pilihan: opsi(t),
-        benar: t.suara ? `Ini ${t.nama}. Bunyinya, ${t.suara}!` : `Ini ${t.nama}. ${besarAwal(t.nama)} ${t.ciri}.`,
+        ucap: `Ingat dongengnya? Siapa yang ${p}?`,
+        tulis: `Siapa yang ${p}? 🤔`,
+        pilihan: buatOpsi(HEWAN, t, jml, (h) => !mirip.has(h.nama)).map((h) => ({
+          benar: h === t, html: gambarHTML(h), label: h.nama, salah: `Itu ${h.nama}.`,
+        })),
+        benar: `Itu ${d.tokoh} dari dongeng tadi! ${besarAwal(d.tokoh)} ${p}.`,
+        bunyi: BUNYI_HEWAN[t.nama],
       };
     },
 
+    // Tebak nama (buah, warna, bentuk, huruf): gambar muncul, anak memilih tulisan namanya.
+    // Setiap pilihan punya tombol 🔊 untuk mendengar namanya dulu.
     buah(no) {
-      const jml = no < 2 ? 3 : 4;
-      const tipe = pilihTipe(no < 2 ? ['nama'] : ['nama', 'ciri', 'warna', 'bukan']);
-      const opsi = (t, saring) => buatOpsi(BUAH, t, jml, saring).map((b) => ({
-        benar: b === t, html: emojiHTML(b.emoji), label: b.nama, salah: `Itu buah ${b.nama}.`,
-      }));
-
-      if (tipe === 'ciri') {
-        const t = ambilBaru(BUAH);
-        return { ucap: `Buah apa yang ${t.ciri}?`, tulis: `Buah apa yang ${t.ciri}? 🤔`, pilihan: opsi(t), benar: `Ini buah ${t.nama}. Rasanya ${t.rasa}!` };
-      }
-      if (tipe === 'warna') {
-        const t = ambilBaru(BUAH, { saring: (b) => b.warnaDasar });
-        return {
-          ucap: `Buah apa yang warnanya ${t.warnaDasar}?`, tulis: `Buah apa yang warnanya ${t.warnaDasar}? 🎨`,
-          pilihan: opsi(t, (b) => b.warnaDasar && b.warnaDasar !== t.warnaDasar),
-          benar: `Ini buah ${t.nama}. Warnanya ${t.warna}!`,
-        };
-      }
-      if (tipe === 'bukan') {
-        const t = ambilBaru([...HEWAN, ...BENDA_LAIN], { ruang: 'bukan-buah' });
-        return {
-          ucap: 'Mana yang bukan buah?', tulis: 'Mana yang BUKAN buah? 🤔',
-          pilihan: kocok([t, ...kocok(BUAH).slice(0, jml - 1)]).map((x) => ({
-            benar: x === t, html: emojiHTML(x.emoji), label: x.nama, salah: `Itu ${x.nama}. ${besarAwal(x.nama)} itu buah.`,
-          })),
-          benar: `Ini ${t.nama}. ${besarAwal(t.nama)} bukan buah.`,
-        };
-      }
       const t = ambilBaru(BUAH);
-      return { ucap: `Mana buah ${t.nama}?`, tulis: `Mana buah ${t.nama}? 🔍`, pilihan: opsi(t), benar: `Ini buah ${t.nama}. Warnanya ${t.warna}, rasanya ${t.rasa}!` };
+      return {
+        ucap: 'Buah apa ini?', tulis: 'Buah apa ini? 🤔',
+        atas: gambarTanya(t.emoji, t.gambar),
+        pilihan: opsiNama(BUAH, t, no, (b) => b.nama, (b) => `Itu buah ${b.nama}.`),
+        benar: `Ini buah ${t.nama}. Warnanya ${t.warna}, rasanya ${t.rasa}!`,
+      };
     },
 
     warna(no) {
-      const jml = no < 2 ? 3 : 4;
-      const tipe = pilihTipe(no < 1 ? ['nama'] : ['nama', 'benda']);
       const t = ambilBaru(WARNA);
-      const b = acak(t.benda);
-      const tanpaMirip = (w) => !t.mirip.includes(w.nama);
-      const opsi = (saring) => buatOpsi(WARNA, t, jml, saring).map((w) => ({
-        benar: w === t, html: catHTML(w.hex), label: w.nama, salah: `Itu warna ${w.nama}.`,
-      }));
-      if (tipe === 'benda') {
-        return { ucap: `Apa warna ${b.n}?`, tulis: `Apa warna ${b.n}? 🎨`, atas: gambarTanya(b.e), pilihan: opsi(tanpaMirip), benar: `${besarAwal(b.n)} warnanya ${t.nama}.` };
-      }
-      return { ucap: `Mana warna ${t.nama}?`, tulis: `Mana warna ${t.nama}? 🎨`, pilihan: opsi(no < 2 ? tanpaMirip : undefined), benar: `Ini warna ${t.nama}, seperti ${b.n}.` };
+      const tanpaMirip = no < 2 ? (w) => !t.mirip.includes(w.nama) : undefined;
+      return {
+        ucap: 'Warna apa ini?', tulis: 'Warna apa ini? 🎨',
+        atas: `<div class="gambar-tanya">${catHTML(t.hex)}</div>`,
+        pilihan: opsiNama(WARNA, t, no, (w) => w.nama, (w) => `Itu warna ${w.nama}.`, tanpaMirip),
+        benar: `Ini warna ${t.nama}, seperti ${acak(t.benda).n}.`,
+      };
     },
 
     bentuk(no) {
-      const jml = no < 2 ? 3 : 4;
-      const tipe = pilihTipe(no < 1 ? ['nama'] : ['nama', 'benda']);
       const t = ambilBaru(BENTUK);
-      const c = acak(t.contoh);
-      const warna = kocok(WARNA_ANGKA);
-      const saring = tipe === 'benda' || no < 2 ? (b) => !t.mirip.includes(b.nama) : undefined;
-      const pilihan = buatOpsi(BENTUK, t, jml, saring).map((b, i) => ({
-        benar: b === t, html: bentukHTML(b, warna[i]), label: b.nama, salah: `Itu ${b.nama}.`,
-      }));
-      if (tipe === 'benda') {
-        return { ucap: `${besarAwal(c.n)}, bentuknya seperti apa?`, tulis: `${besarAwal(c.n)} bentuknya seperti apa? 🤔`, atas: gambarTanya(c.e), pilihan, benar: `${besarAwal(c.n)} bentuknya ${t.nama}.` };
-      }
-      return { ucap: `Mana bentuk ${t.nama}?`, tulis: `Mana bentuk ${t.nama}? 🔍`, pilihan, benar: `Ini ${t.nama}, seperti ${c.n}.` };
+      const tanpaMirip = no < 2 ? (b) => !t.mirip.includes(b.nama) : undefined;
+      return {
+        ucap: 'Bentuk apa ini?', tulis: 'Bentuk apa ini? 🔺',
+        atas: `<div class="gambar-tanya">${bentukHTML(t, acak(WARNA_ANGKA))}</div>`,
+        pilihan: opsiNama(BENTUK, t, no, (b) => b.nama, (b) => `Itu ${b.nama}.`, tanpaMirip),
+        benar: `Ini ${t.nama}, seperti ${acak(t.contoh).n}.`,
+      };
     },
 
     huruf(no) {
-      const jml = no < 2 ? 3 : 4;
-      const tipe = pilihTipe(no < 1 ? ['nama'] : ['nama', 'awal']);
       const t = ambilBaru(HURUF, { kunci: (h) => h.h });
-      const warna = kocok(WARNA_ANGKA);
-      const pilihan = buatOpsi(HURUF, t, jml).map((h, i) => ({
-        benar: h === t, html: `<span class="huruf" style="--c:${warna[i]}">${h.h}</span>`, label: h.kata, salah: `Itu huruf ${h.eja}.`,
-      }));
-      if (tipe === 'awal') {
-        return { ucap: `${t.kata}. Huruf depannya apa?`, tulis: 'Huruf depannya apa? 🤔', atas: gambarTanya(t.emoji), pilihan, benar: `${t.kata}, dimulai dengan huruf ${t.eja}.` };
-      }
-      return { ucap: `Mana huruf ${t.eja}?`, tulis: `Mana huruf ${t.h}? 🔍`, pilihan, benar: `Ini huruf ${t.eja}. ${besarAwal(t.eja)}, ${t.kata}!` };
+      return {
+        ucap: 'Huruf apa ini?', tulis: 'Huruf apa ini? 🔤',
+        atas: `<div class="gambar-tanya"><span class="huruf" style="--c:${acak(WARNA_ANGKA)}">${t.h}</span></div>`,
+        pilihan: opsiNama(HURUF, t, no, (h) => h.eja, (h) => `Itu huruf ${h.eja}.`),
+        benar: `Ini huruf ${t.eja}. ${besarAwal(t.eja)}, ${t.kata}!`,
+      };
     },
 
     hitung(no) {
@@ -625,16 +666,32 @@
         ${progresHTML()}
         <div class="papan-tanya">
           ${s.atas || ''}
-          <button class="btn-ulang" id="btnUlang">🔊 Dengar lagi</button>
+          <div class="tombol-tanya">
+            <button class="btn-ulang" id="btnUlang">🔊 Dengar lagi</button>
+            ${s.bunyi ? '<button class="btn-ulang" id="btnBunyi">🐾 Dengar suaranya</button>' : ''}
+          </div>
         </div>
-        <div class="pilihan n${s.pilihan.length}">
-          ${s.pilihan.map((p, i) => `<button class="kartu" data-i="${i}" aria-label="Pilihan ${i + 1}">${p.html}<span class="label">${p.label}</span></button>`).join('')}
+        <div class="pilihan n${s.pilihan.length} ${s.pilihan[0].teks ? 'pilihan-nama' : ''}">
+          ${s.pilihan.map((p, i) => (p.teks
+            ? `<div class="opsi-nama">
+                 <button class="kartu kartu-nama" data-i="${i}">${p.teks}</button>
+                 <button class="dengar-opsi" data-i="${i}" aria-label="Dengar: ${p.teks}">🔊</button>
+               </div>`
+            : `<button class="kartu" data-i="${i}" aria-label="Pilihan ${i + 1}">${p.html}<span class="label">${p.label}</span></button>`)).join('')}
         </div>
       </section>`);
 
-    const tanya = () => Suara.bicara(s.ucap, { tulis: s.tulis });
+    // Soal hewan bersuara: setelah pertanyaan, suara hewan aslinya diputar sebagai petunjuk
+    const tanya = () => Suara.bicara(s.ucap, { tulis: s.tulis, selesai: s.bunyi ? () => Suara.bunyi(s.bunyi) : undefined });
     $('#btnUlang').addEventListener('click', () => { if (sibuk()) return; Sfx.pilih(); tanya(); });
+    if (s.bunyi) $('#btnBunyi').addEventListener('click', () => { if (sibuk()) return; Suara.bunyi(s.bunyi); });
     pasangHitung(layar);
+    $$('.dengar-opsi', layar).forEach((b) => b.addEventListener('click', () => {
+      if (sibuk()) return;
+      const p = s.pilihan[+b.dataset.i];
+      Sfx.pilih();
+      Suara.bicara(p.dengar, { tulis: `🔊 ${p.teks}` });
+    }));
 
     const kartu = $$('.kartu', layar);
     kartu.forEach((btn) => btn.addEventListener('click', () => {
@@ -665,7 +722,7 @@
       }
     }));
 
-    Suara.bicara((main.no === 0 ? INTRO[main.jenis] + ' ' : '') + s.ucap, { tulis: s.tulis });
+    tanya();
     pengingat(tanya);
   }
 
@@ -678,30 +735,23 @@
     Suara.bicara(ucap, { tulis, gaya: 'senang', selesai: () => nanti(soalBerikut, 600) });
   }
 
-  // ---------- Urutkan angka: kereta (naik), roket (hitung mundur), angka hilang ----------
+  // ---------- Urutkan angka: kereta angka, disusun dari terkecil hingga terbesar ----------
   function soalUrut() {
-    const tipe = main.no < 2 ? 'kecil' : pilihTipe(['kecil', 'besar', 'hilang']);
-    const n = tipe === 'hilang' ? (main.no < 3 ? 4 : 5) : [3, 4, 5, 5, 6][main.no] || 5;
+    const n = [3, 4, 5, 5, 6][main.no] || 5;
     const awal = main.no < 2 ? 1 : 1 + Math.floor(Math.random() * (10 - n + 1));
     const deret = Array.from({ length: n }, (_, i) => awal + i);
-    if (tipe === 'besar') deret.reverse();
-    const roket = tipe === 'besar';
-    const kosong = tipe === 'hilang' ? 1 + Math.floor(Math.random() * (n - 2)) : -1;
-    const terisi = (i) => tipe === 'hilang' && i !== kosong;
-
     let kartuN;
-    if (tipe === 'hilang') kartuN = opsiAngka(deret[kosong]);
-    else do { kartuN = kocok(deret); } while (kartuN.every((v, i) => v === deret[i]));
+    do { kartuN = kocok(deret); } while (kartuN.every((v, i) => v === deret[i]));
     let idx = 0;
 
     tampil(`
       <section class="game game-urut">
         ${progresHTML()}
         <div class="papan-tanya"><button class="btn-ulang" id="btnUlang">🔊 Dengar lagi</button></div>
-        <div class="rel ${roket ? 'rel-roket' : ''}">
-          <div class="kereta ${roket ? 'roket' : ''}" id="kereta">
-            ${deret.map((d, i) => `<div class="gerbong ${terisi(i) ? 'isi' : ''}" style="--c:${WARNA_ANGKA[(d - 1) % 10]}"><span>${terisi(i) ? d : '?'}</span></div>`).join('')}
-            <span class="lokomotif">${roket ? '🚀' : '🚂'}</span>
+        <div class="rel">
+          <div class="kereta" id="kereta">
+            ${deret.map((d) => `<div class="gerbong" style="--c:${WARNA_ANGKA[(d - 1) % 10]}"><span>?</span></div>`).join('')}
+            <span class="lokomotif">🚂</span>
           </div>
         </div>
         <div class="pilihan angka-acak" style="--n:${kartuN.length}">
@@ -712,13 +762,9 @@
     const gerbong = $$('.gerbong', layar);
     const kartu = $$('.kartu', layar);
     const urutan = deret.map(kata).join(', ');
-    const [ucapAwal, tulisAwal] = {
-      kecil: [`Susun angkanya dari yang paling kecil. Mulai dari angka ${kata(deret[0])}!`, `Susun dari yang paling kecil! Mulai dari ${deret[0]} 🚂`],
-      besar: [`Hitung mundur! Susun dari yang paling besar. Mulai dari angka ${kata(deret[0])}!`, `Hitung mundur! Mulai dari ${deret[0]} 🚀`],
-      hilang: [`${besarAwal(deret.map((d, i) => (i === kosong ? 'berapa' : kata(d))).join(', '))}. Angka berapa yang hilang?`,
-        `${deret.map((d, i) => (i === kosong ? '?' : d)).join(' - ')}  Angka berapa yang hilang? 🔍`],
-    }[tipe];
-    const tanya = () => (idx === 0 || tipe === 'hilang'
+    const ucapAwal = `Susun angkanya dari yang paling kecil. Mulai dari angka ${kata(deret[0])}!`;
+    const tulisAwal = `Susun dari yang paling kecil! Mulai dari ${deret[0]} 🚂`;
+    const tanya = () => (idx === 0
       ? Suara.bicara(ucapAwal, { tulis: tulisAwal })
       : Suara.bicara(`Sekarang cari angka ${kata(deret[idx])}!`, { tulis: `Sekarang cari angka ${deret[idx]} 🔍` }));
 
@@ -727,19 +773,18 @@
     kartu.forEach((btn) => btn.addEventListener('click', () => {
       if (sibuk()) return;
       const d = +btn.dataset.n;
-      const slot = tipe === 'hilang' ? kosong : idx;
-      const harap = deret[slot];
+      const harap = deret[idx];
       if (d === harap) {
         Sfx.pop();
         btn.classList.add('terpakai');
         btn.disabled = true;
-        gerbong[slot].classList.add('isi');
-        gerbong[slot].querySelector('span').textContent = d;
+        gerbong[idx].classList.add('isi');
+        gerbong[idx].querySelector('span').textContent = d;
         kartu.forEach((k) => k.classList.remove('petunjuk'));
         main.salah = 0;
         idx++;
         hapusTimer();
-        if (tipe === 'hilang' || idx === deret.length) {
+        if (idx === deret.length) {
           kartu.forEach((k) => k.classList.add('redup'));
           selesai();
         } else {
@@ -750,13 +795,7 @@
         main.salah++;
         Sfx.salah();
         goyang(btn);
-        if (tipe === 'hilang') {
-          btn.disabled = true;
-          btn.classList.add('coba');
-          Suara.bicara(`Itu angka ${kata(d)}. ${acak(SEMANGAT)}`, { tulis: `Itu angka ${d}. Coba lagi ya! 💪`, gaya: 'lembut' });
-        } else {
-          Suara.bicara(`Itu angka ${kata(d)}. Cari angka ${kata(harap)} dulu ya!`, { tulis: `Itu angka ${d}. Cari angka ${harap} dulu ya! 🔍`, gaya: 'lembut' });
-        }
+        Suara.bicara(`Itu angka ${kata(d)}. Cari angka ${kata(harap)} dulu ya!`, { tulis: `Itu angka ${d}. Cari angka ${harap} dulu ya! 🔍`, gaya: 'lembut' });
         if (main.salah >= 2) $(`.kartu[data-n="${harap}"]`, layar).classList.add('petunjuk');
       }
     }));
@@ -769,22 +808,20 @@
       main.no++;
       perbaruiProgres();
       const puji = acak(PUJIAN);
-      nanti(() => {
-        if (roket) Sfx.roket(); else Sfx.tut();
-        $('#kereta').classList.add(roket ? 'meluncur' : 'jalan');
-      }, 900);
-      if (roket) lanjut(`${puji} ${besarAwal(urutan)}. Meluncuuur!`, `${puji} ${deret.join(' - ')} 🚀✨`);
-      else if (tipe === 'hilang') lanjut(`${puji} Angka yang hilang adalah ${kata(deret[kosong])}. ${besarAwal(urutan)}!`, `${puji} ${deret.join(' - ')} 🚂💨`);
-      else lanjut(`${puji} ${besarAwal(urutan)}. Tut tuuut! Keretanya berangkat!`, `${puji} ${deret.join(' - ')} 🚂💨`);
+      nanti(() => { Sfx.tut(); $('#kereta').classList.add('jalan'); }, 900);
+      lanjut(`${puji} ${besarAwal(urutan)}. Tut tuuut! Keretanya berangkat!`, `${puji} ${deret.join(' - ')} 🚂💨`);
     }
 
-    Suara.bicara((main.no === 0 ? INTRO.urut + ' ' : '') + ucapAwal, { tulis: tulisAwal });
+    Suara.bicara(ucapAwal, { tulis: tulisAwal });
     pengingat(tanya);
   }
 
   // ---------- Layar hasil ----------
   function layarHasil() {
     main.kunci = false;
+    tandaiSelesai(main.jenis);
+    // Semua pos baru saja selesai: ajak ke penutup
+    const kePenutup = semuaSelesai() && !ceritaDilihat.penutup;
     Sfx.menang();
     konfeti();
     tampil(`
@@ -793,10 +830,17 @@
         <h2>Hore! Kamu Hebat!</h2>
         <div class="bintang-hasil">${Array.from({ length: main.total }, (_, i) => `<span style="animation-delay:${0.3 + i * 0.2}s">⭐</span>`).join('')}</div>
         <div class="aksi">
-          <button class="btn-besar btn-oranye" id="btnLagi">🔁 Main Lagi</button>
-          <button class="btn-besar btn-biru" id="btnMenu">🏠 Menu</button>
+          ${kePenutup
+            ? '<button class="btn-besar btn-main" id="btnPenutup">🎉 Lihat Kejutan!</button>'
+            : `<button class="btn-besar btn-oranye" id="btnLagi">🔁 Main Lagi</button>
+               <button class="btn-besar btn-biru" id="btnMenu">🗺️ Peta</button>`}
         </div>
       </section>`);
+    if (kePenutup) {
+      $('#btnPenutup').addEventListener('click', () => { Sfx.pop(); layarCerita('penutup'); });
+      Suara.bicara(`Hore! Kamu hebat sekali! Kamu dapat ${kata(main.total)} bintang! Semua pos sudah selesai! Ayo lihat kejutannya!`, { tulis: 'Hore! Semua pos sudah selesai! 🎉', gaya: 'senang' });
+      return;
+    }
     $('#btnLagi').addEventListener('click', () => { Sfx.pop(); mulaiGame(main.jenis); });
     $('#btnMenu').addEventListener('click', () => { Sfx.pop(); layarMenu(); });
     Suara.bicara(`Hore! Kamu hebat sekali! Kamu dapat ${kata(main.total)} bintang! Mau main lagi?`, { tulis: `Hore! Kamu dapat ${main.total} bintang! ⭐`, gaya: 'senang' });
@@ -813,13 +857,10 @@
   ];
 
   const ITEM_BELAJAR = {
-    hewan: () => HEWAN.map((h) => ({
-      html: emojiHTML(h.emoji), label: h.nama,
-      ucap: h.suara ? `${besarAwal(h.nama)}. Bunyinya, ${h.suara}!` : `${besarAwal(h.nama)}. ${besarAwal(h.nama)} ${h.ciri}.`,
-      tulis: h.suara ? `${h.emoji} ${besarAwal(h.nama)} bunyinya "${h.suara}"` : `${h.emoji} ${besarAwal(h.nama)} ${h.ciri}`,
-    })),
+    // Hewan membuka dongengnya, bukan sekadar disebut namanya
+    hewan: () => HEWAN.map((h) => ({ html: gambarHTML(h), label: h.nama, hewan: h })),
     buah: () => BUAH.map((b) => ({
-      html: emojiHTML(b.emoji), label: b.nama,
+      html: gambarHTML(b), label: b.nama,
       ucap: `${besarAwal(b.nama)}. Warnanya ${b.warna}, rasanya ${b.rasa}.`,
       tulis: `${b.emoji} ${besarAwal(b.nama)}: warnanya ${b.warna}, rasanya ${b.rasa}`,
     })),
@@ -836,10 +877,56 @@
       ucap: `${besarAwal(b.nama)}. Seperti ${b.contoh[0].n}.`, tulis: `${b.contoh[0].e} ${besarAwal(b.nama)}, seperti ${b.contoh[0].n}`,
     })),
     huruf: () => HURUF.map((h, i) => ({
-      html: `<span class="huruf" style="--c:${WARNA_ANGKA[i % 10]}">${h.h}</span><span class="emoji-kecil">${h.emoji}</span>`,
+      html: `<span class="huruf" style="--c:${WARNA_ANGKA[i % 10]}">${h.h}</span>${h.gambar
+        ? `<img class="foto-kecil" src="${h.gambar}" alt="${h.kata}" draggable="false">`
+        : `<span class="emoji-kecil">${h.emoji}</span>`}`,
       label: h.kata, ucap: `${besarAwal(h.eja)}. ${besarAwal(h.eja)}, ${h.kata}.`, tulis: `${h.h} — ${h.kata} ${h.emoji}`,
     })),
   };
+
+  // ---------- Dongeng hewan ----------
+  // Hewan yang dongengnya sudah dibuka anak (dipakai untuk memilih soal Tebak Hewan)
+  const dongengDidengar = new Set(simpan.ambil('tc_dongeng', []) || []);
+
+  function tutupDongeng() {
+    const latar = $('#panelDongeng');
+    if (latar) latar.remove();
+  }
+
+  function bukaDongeng(h, selesai) {
+    tutupDongeng();
+    const d = DONGENG[h.nama];
+    const bunyi = BUNYI_HEWAN[h.nama];
+    dongengDidengar.add(h.nama);
+    simpan.taruh('tc_dongeng', [...dongengDidengar]);
+    document.body.insertAdjacentHTML('beforeend', `
+      <div class="panel-latar" id="panelDongeng">
+        <div class="panel dongeng" role="dialog" aria-modal="true" aria-label="Dongeng ${d.tokoh}">
+          <div class="dongeng-gambar">${gambarHTML(h)}</div>
+          <p class="cerita-sub">Dongeng</p>
+          <h2 class="dongeng-judul">${d.tokoh}</h2>
+          <p class="dongeng-teks">${d.teks}</p>
+          <div class="panel-aksi">
+            ${bunyi ? '<button class="btn-kecil" id="btnDongengBunyi">🐾 Suaranya</button>' : ''}
+            <button class="btn-kecil" id="btnDongengUlang">🔊 Dengar lagi</button>
+            <button class="btn-kecil utama" id="btnDongengTutup">✖ Tutup</button>
+          </div>
+        </div>
+      </div>`);
+    const latar = $('#panelDongeng');
+    // Suara hewan aslinya dulu (bila ada), lalu Cuking membacakan dongeng
+    const baca = (lalu) => Suara.bunyi(bunyi, () => Suara.bicara(d.teks, { tulis: `📖 Dongeng ${d.tokoh}`, selesai: lalu }));
+    if (bunyi) $('#btnDongengBunyi').addEventListener('click', () => Suara.bunyi(bunyi));
+    const tutup = () => { Sfx.pop(); Suara.diam(); tutupDongeng(); };
+    $('#btnDongengUlang').addEventListener('click', () => { Sfx.pilih(); baca(); });
+    $('#btnDongengTutup').addEventListener('click', tutup);
+    latar.addEventListener('click', (e) => { if (e.target === latar) tutup(); });
+    baca(selesai);
+  }
+
+  // Pos Kenalan Yuk dianggap selesai setelah anak menyentuh beberapa gambar berbeda
+  const SYARAT_KENALAN = 6;
+  const dikenal = new Set();
 
   function layarBelajar(tab, sapa) {
     main = null;
@@ -860,7 +947,16 @@
       b.classList.remove('loncat');
       void b.offsetWidth;
       b.classList.add('loncat');
-      Suara.bicara(it.ucap, { tulis: it.tulis });
+      dikenal.add(`${tab}:${b.dataset.i}`);
+      const baruSelesai = dikenal.size >= SYARAT_KENALAN && tandaiSelesai('belajar');
+      const rayakan = baruSelesai ? () => {
+        Sfx.benar();
+        konfeti();
+        const berikut = posBerikut();
+        Suara.bicara(`Hore! Pos Kenalan Yuk selesai!${berikut ? ` Ayo lanjut ke ${berikut.nama}!` : ''}`, { tulis: 'Hore! Pos Kenalan Yuk selesai ✅', gaya: 'senang' });
+      } : undefined;
+      if (it.hewan) bukaDongeng(it.hewan, rayakan);
+      else Suara.bicara(it.ucap, { tulis: it.tulis, selesai: rayakan });
     }));
     const namaTab = TAB_BELAJAR.find((t) => t.id === tab).nama.toLowerCase();
     if (sapa) Suara.bicara('Ayo kenalan! Sentuh gambarnya, nanti Cuking sebutkan namanya.', { tulis: 'Ayo kenalan! Sentuh gambarnya ya 👆' });

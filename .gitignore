@@ -4,3 +4,6 @@
 # Sisa proses perekaman suara
 suara/*.tmp
 __pycache__/
+
+# API key ElevenLabs (rahasia, jangan diunggah)
+tools/.elevenlabs-key
