@@ -1,7 +1,9 @@
 # Sumber Foto
 
-Semua foto diambil dari [Unsplash](https://unsplash.com) dan boleh dipakai gratis sesuai
-[Lisensi Unsplash](https://unsplash.com/license). Latar belakangnya dihapus agar rapi di kartu.
+Sebagian besar foto diambil dari [Unsplash](https://unsplash.com) dan boleh dipakai gratis sesuai
+[Lisensi Unsplash](https://unsplash.com/license). Beberapa foto berasal dari
+[Wikimedia Commons](https://commons.wikimedia.org) dengan lisensi yang tertulis di tabel; foto berlisensi
+CC BY-SA yang sudah diolah tetap berlisensi CC BY-SA. Latar belakangnya dihapus agar rapi di kartu.
 Terima kasih kepada para fotografer berikut.
 
 | Berkas | Foto asli | Fotografer |
@@ -10,17 +12,17 @@ Terima kasih kepada para fotografer berikut.
 | `hewan/gajah.webp` | [Gajah abu-abu](https://unsplash.com/photos/gray-elephant-with-white-background-HTIduwcMMfQ) | Kaffeebart |
 | `hewan/ayam.webp` | [Ayam cokelat-keemasan](https://unsplash.com/photos/brown-and-yellow-hen-_kGG9EyZxyA) | Unsplash |
 | `hewan/anjing.webp` | [anjing](https://unsplash.com/photos/a-happy-corgi-dog-sits-on-a-white-background-q4ISUQSjU9o) | Jarrel Ng |
-| `hewan/sapi.webp` | [sapi](https://unsplash.com/photos/NE6Rfgy-dUE) | Isabela Dragu |
+| `hewan/sapi.webp` | [sapi](https://commons.wikimedia.org/wiki/File:Bos_taurus_-_2_June_2025.jpg) (Wikimedia Commons, CC0) | Aethonatic |
 | `hewan/domba.webp` | [domba](https://unsplash.com/photos/white-sheep-standing-on-green-grass-9oL-9EKgadc) | Trishy |
 | `hewan/kuda.webp` | [kuda](https://unsplash.com/photos/5votTkXj7g0) | Aweb Barouni |
 | `hewan/katak.webp` | [katak](https://unsplash.com/photos/a-vibrant-green-frog-perched-on-a-white-surface-3t73m_F2KjM) | Dmytro Koplyk |
 | `hewan/burung.webp` | [burung](https://unsplash.com/photos/a-house-sparrow-perched-with-a-blurred-background-di_CxIfTzck) | Amanda Swanepoel |
 | `hewan/lebah.webp` | [lebah](https://unsplash.com/photos/QJ1wI3Muc6Y) | Aljaž Kavčič |
 | `hewan/tikus.webp` | [tikus](https://unsplash.com/photos/a-small-brown-and-white-mouse-on-a-dark-background-SiMygkv4pPc) | Nikolett Emmert |
-| `hewan/kelinci.webp` | [kelinci](https://unsplash.com/photos/a-gray-rabbit-sitting-on-top-of-a-white-floor-p0TGhqO3rck) | Jei Lee |
+| `hewan/kelinci.webp` | [kelinci](https://unsplash.com/photos/brown-and-white-rabbit-beside-wall-MzKTG9cQ2zo) | Quilia |
 | `hewan/jerapah.webp` | [jerapah](https://unsplash.com/photos/a-giraffe-walks-across-a-dry-savanna-landscape-bvP7tsjQE-A) | Fabien BELLANGER |
 | `hewan/kura-kura.webp` | [kura-kura](https://unsplash.com/photos/brown-and-black-turtle-on-white-surface-o5LcQ9GkT6A) | Craig Pattenaude |
-| `hewan/beruang.webp` | [beruang](https://unsplash.com/photos/a-large-brown-bear-walking-across-a-lush-green-field-u7w6Vo7v94k) | Ronan Hello |
+| `hewan/beruang.webp` | [beruang](https://commons.wikimedia.org/wiki/File:Brown_bear_on_a_white_background.png) (Wikimedia Commons, CC BY 2.0) | lwolfartist |
 | `hewan/buaya.webp` | [buaya](https://unsplash.com/photos/a-large-alligator-laying-on-top-of-a-lush-green-field-HkIeTBH8eJk) | Marc Vael |
 | `hewan/kupu-kupu.webp` | [kupu-kupu](https://unsplash.com/photos/a-large-orange-butterfly-flying-through-the-air-E3R1aMOpLYc) | James Lee |
 | `hewan/semut.webp` | [semut](https://unsplash.com/photos/close-up-photo-of-black-ant-in-front-of-plant-mrL7QWWkciE) | Guillaume de Germain |
@@ -28,14 +30,14 @@ Terima kasih kepada para fotografer berikut.
 | `hewan/lumba-lumba.webp` | [lumba-lumba](https://unsplash.com/photos/dolphin-jumping-out-of-the-sea-during-day-dgBOx1e3Mbs) | Noah Boyer |
 | `hewan/ikan-paus.webp` | [ikan paus](https://unsplash.com/photos/a-humpback-whale-jumping-out-of-the-water-E4W9PCThoSY) | Saroj Bhandari |
 | `hewan/unta.webp` | [unta](https://unsplash.com/photos/a-camel-standing-in-the-middle-of-a-desert-heNpLRaLDNw) | Hongbin |
-| `hewan/zebra.webp` | [zebra](https://unsplash.com/photos/a-zebra-standing-on-top-of-a-grass-covered-field-y_B6GE-rBJM) | Wolfgang Hasselmann |
-| `hewan/rusa.webp` | [rusa](https://unsplash.com/photos/selective-focus-photography-of-brown-deer-standing-on-green-grass-field-during-daytime-K_Na5gCmh38) | Laura College |
+| `hewan/zebra.webp` | [zebra](https://commons.wikimedia.org/wiki/File:Plains_Zebra_(Equus_quagga)_foal_..._(52913542549).jpg) (Wikimedia Commons, CC BY-SA 2.0) | Bernard Dupont |
+| `hewan/rusa.webp` | [rusa](https://unsplash.com/photos/brown-deer-on-white-background-BKZawJTA5t4) | Jeremy Perkins |
 | `hewan/kanguru.webp` | [kanguru](https://unsplash.com/photos/a-kangaroo-standing-in-a-field-with-trees-in-the-background-N9wvdQCLvo4) | Vincent Böhme |
 | `hewan/kuda-nil.webp` | [kuda nil](https://unsplash.com/photos/a-hippopotamus-standing-on-a-dirt-ground-next-to-a-body-of-water-vmbH3vXxPZ0) | Danny Rienecker |
 | `buah/apel.webp` | [apel](https://unsplash.com/photos/red-apple-on-white-background-rxN2MRdFJVg) | Amit Lahav |
 | `buah/pisang.webp` | [pisang](https://unsplash.com/photos/yellow-banana-on-white-background-Kl3467edwsE) | Mockup Graphics |
 | `buah/jeruk.webp` | [jeruk](https://unsplash.com/photos/orange-fruit-on-white-surface-ZBXPPacUsVs) | Mockup Graphics |
-| `buah/anggur.webp` | [anggur](https://unsplash.com/photos/a-bunch-of-dark-grapes-with-a-colorful-leaf-Hj5G3_Uib4o) | Erwin Bosman |
+| `buah/anggur.webp` | [anggur](https://commons.wikimedia.org/wiki/File:USDA_Eat_Healthy_Food_Group_Gallery_serving_size_medium_bunch_purple_grapes.jpg) (Wikimedia Commons, domain publik) | U.S. Department of Agriculture |
 | `buah/semangka.webp` | [semangka](https://unsplash.com/photos/sliced-watermelon-on-white-background-13PBliWTDng) | Mockup Graphics |
 | `buah/stroberi.webp` | [stroberi](https://unsplash.com/photos/a-close-up-of-a-strawberry-on-a-white-background-y7jUXGIVwSI) | William Warby |
 | `buah/nanas.webp` | [nanas](https://unsplash.com/photos/pineapple-on-white-surface-Cr9hZrpC1Oc) | Julien Pianetti |
@@ -61,7 +63,7 @@ Terima kasih kepada para fotografer berikut.
 | `hewan/pinguin.webp` | [pinguin](https://unsplash.com/photos/penguin-standing-on-black-rock-9zTafGVsv-c) | Jay Ruzesky |
 | `hewan/kepiting.webp` | [kepiting](https://unsplash.com/photos/a-red-and-white-crab-rests-on-a-rocky-shore-9JAoS86GNtA) | Philip Yu |
 | `hewan/siput.webp` | [siput](https://unsplash.com/photos/a-snail-crawling-on-top-of-a-yellow-leaf-dvLEU1iip0I) | Julia Ly |
-| `hewan/burung-beo.webp` | [burung beo](https://unsplash.com/photos/red-yellow-and-blue-parrot-on-brown-tree-branch-1GGd8iMckjg) | Jairo Alzate |
+| `hewan/burung-beo.webp` | [burung beo](https://commons.wikimedia.org/wiki/File:Scarlet_Macaw_Phoenix_Zoo_Mar23_A7R_04528.jpg) (Wikimedia Commons, CC BY-SA 4.0) | Timothy A. Gonsalves |
 | `hewan/landak.webp` | [landak](https://unsplash.com/photos/hedgehog-on-white-sand-during-daytime-mGQ5-MTqRbQ) | Arif Hidayat |
 | `hewan/gurita.webp` | [gurita](https://unsplash.com/photos/an-octopus-is-hanging-upside-down-in-a-tank-v-Cf5LcLtkg) | Anya Chernykh |
 | `buah/kelapa.webp` | [kelapa](https://unsplash.com/photos/a-half-eaten-coconut-sitting-on-top-of-a-white-table-Y4JLPY9mzQA) | Michele Wales |
