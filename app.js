@@ -138,28 +138,44 @@
           clearTimeout(potong);
           setTimeout(() => putar(i + 1), jeda);
         };
-        // Penjaga bila audio / suara macet: lanjut ke kalimat berikutnya
-        jaga = setTimeout(lanjutkan, (2000 + k.length * 120) / cepat);
-        const klip = rekaman && KLIP_SUARA[k];
-        if (klip) {
-          const [berkas, selesaiDetik, mulaiDetik] = Array.isArray(klip) ? klip : [klip, null];
-          // Hening di awal & akhir rekaman dilewati (detik mulai dari daftar.js bila ada)
-          const a = new Audio(`suara/${berkas}#t=${mulaiDetik ?? AWAL_KLIP}`);
-          a.playbackRate = cepat;
-          a.onended = lanjutkan;
-          if (selesaiDetik) {
-            a.onplaying = () => {
-              clearTimeout(potong);
-              potong = setTimeout(() => { a.pause(); lanjutkan(); }, Math.max(0, (selesaiDetik - a.currentTime) * 1000) / cepat);
-            };
+        let diucap = false;
+        const ucapkan = () => {
+          if (id !== this.id || lewat || diucap) return;
+          diucap = true;
+          // Penjaga bila audio / suara macet: lanjut ke kalimat berikutnya
+          clearTimeout(jaga);
+          jaga = setTimeout(lanjutkan, (2000 + k.length * 120) / cepat);
+          const klip = rekaman && KLIP_SUARA[k];
+          if (klip) {
+            const [berkas, selesaiDetik, mulaiDetik] = Array.isArray(klip) ? klip : [klip, null];
+            // Hening di awal & akhir rekaman dilewati (detik mulai dari daftar.js bila ada)
+            const a = new Audio(`suara/${berkas}#t=${mulaiDetik ?? AWAL_KLIP}`);
+            a.playbackRate = cepat;
+            a.onended = lanjutkan;
+            if (selesaiDetik) {
+              a.onplaying = () => {
+                clearTimeout(potong);
+                potong = setTimeout(() => { a.pause(); lanjutkan(); }, Math.max(0, (selesaiDetik - a.currentTime) * 1000) / cepat);
+              };
+            }
+            a.onerror = () => this.ucapkanBrowser(k, f, id, lanjutkan);
+            this.audio = a;
+            a.play().catch(() => this.ucapkanBrowser(k, f, id, lanjutkan));
+          } else {
+            if (rekaman) kalimatTanpaRekaman.add(k);
+            this.ucapkanBrowser(k, f, id, lanjutkan);
           }
-          a.onerror = () => this.ucapkanBrowser(k, f, id, lanjutkan);
-          this.audio = a;
-          a.play().catch(() => this.ucapkanBrowser(k, f, id, lanjutkan));
-        } else {
-          if (rekaman) kalimatTanpaRekaman.add(k);
-          this.ucapkanBrowser(k, f, id, lanjutkan);
-        }
+        };
+        // Tiruan bunyi hewan diganti rekaman hewan asli; kalau berkasnya tidak ada, diucapkan biasa
+        const asli = BUNYI_KALIMAT[k];
+        if (asli) {
+          jaga = setTimeout(lanjutkan, 5000);
+          const b = new Audio(asli);
+          b.onended = lanjutkan;
+          b.onerror = ucapkan;
+          this.audio = b;
+          b.play().catch(ucapkan);
+        } else ucapkan();
       };
       putar(0);
     },
@@ -378,14 +394,13 @@
     simpan.taruh('tc_progres', progres);
     return true;
   }
-  // Cerita yang sudah pernah dibacakan utuh; sesudahnya cukup versi singkat
+  // Cerita yang sudah pernah dibuka (dipakai untuk menampilkan penutup sekali saja)
   const ceritaDilihat = simpan.ambil('tc_cerita', {}) || {};
 
-  // Layar cerita: dibacakan Cuking sebelum masuk pos, juga untuk pembukaan & penutup
+  // Layar cerita: narasinya selalu dibacakan utuh oleh Cuking sebelum masuk pos, juga untuk pembukaan & penutup
   function layarCerita(id, lanjut) {
     main = null;
     const c = CERITA[id];
-    const utuh = !ceritaDilihat[id] || !c.singkat;
     ceritaDilihat[id] = true;
     simpan.taruh('tc_cerita', ceritaDilihat);
     const penutup = id === 'penutup';
@@ -415,7 +430,7 @@
     } else {
       $('#btnLanjut').addEventListener('click', () => { Sfx.pop(); Suara.diam(); lanjut(); });
     }
-    Suara.bicara(utuh ? c.teks.join(' ') : c.singkat, { tulis: utuh ? `${c.ikon} ${c.judul}` : c.singkat, gaya: 'senang' });
+    Suara.bicara(c.teks.join(' '), { tulis: `${c.ikon} ${c.judul}`, gaya: 'senang' });
   }
 
   // Peta Petualangan: pos berurutan sesuai cerita, semua bisa dibuka bebas
@@ -590,14 +605,19 @@
       };
     },
 
+    // Tebak huruf: anak memilih kartu huruf ("Mana huruf B?" atau huruf depan dari gambar)
     huruf(no) {
+      const jml = no < 2 ? 3 : 4;
+      const tipe = pilihTipe(no < 1 ? ['nama'] : ['nama', 'awal']);
       const t = ambilBaru(HURUF, { kunci: (h) => h.h });
-      return {
-        ucap: 'Huruf apa ini?', tulis: 'Huruf apa ini? 🔤',
-        atas: `<div class="gambar-tanya"><span class="huruf" style="--c:${acak(WARNA_ANGKA)}">${t.h}</span></div>`,
-        pilihan: opsiNama(HURUF, t, no, (h) => h.eja, (h) => `Itu huruf ${h.eja}.`),
-        benar: `Ini huruf ${t.eja}. ${besarAwal(t.eja)}, ${t.kata}!`,
-      };
+      const warna = kocok(WARNA_ANGKA);
+      const pilihan = buatOpsi(HURUF, t, jml).map((h, i) => ({
+        benar: h === t, html: `<span class="huruf" style="--c:${warna[i]}">${h.h}</span>`, label: h.kata, salah: `Itu huruf ${h.eja}.`,
+      }));
+      if (tipe === 'awal') {
+        return { ucap: `${t.kata}. Huruf depannya apa?`, tulis: 'Huruf depannya apa? 🤔', atas: gambarTanya(t.emoji, t.gambar), pilihan, benar: `${t.kata}, dimulai dengan huruf ${t.eja}.` };
+      }
+      return { ucap: `Mana huruf ${t.eja}?`, tulis: `Mana huruf ${t.h}? 🔍`, pilihan, benar: `Ini huruf ${t.eja}. ${besarAwal(t.eja)}, ${t.kata}!` };
     },
 
     hitung(no) {
@@ -737,15 +757,17 @@
 
   // ---------- Urutkan angka: kereta angka, disusun dari terkecil hingga terbesar ----------
   function soalUrut() {
-    const n = [3, 4, 5, 5, 6][main.no] || 5;
-    const awal = main.no < 2 ? 1 : 1 + Math.floor(Math.random() * (10 - n + 1));
+    // Soal terakhir selalu kereta panjang 1 sampai 10, agar anak berhitung dari 1 hingga 10
+    const terakhir = main.no === main.total - 1;
+    const n = terakhir ? 10 : [3, 4, 5, 5][main.no] || 5;
+    const awal = main.no < 2 || terakhir ? 1 : 1 + Math.floor(Math.random() * (10 - n + 1));
     const deret = Array.from({ length: n }, (_, i) => awal + i);
     let kartuN;
     do { kartuN = kocok(deret); } while (kartuN.every((v, i) => v === deret[i]));
     let idx = 0;
 
     tampil(`
-      <section class="game game-urut">
+      <section class="game game-urut ${n > 6 ? 'urut-panjang' : ''}">
         ${progresHTML()}
         <div class="papan-tanya"><button class="btn-ulang" id="btnUlang">🔊 Dengar lagi</button></div>
         <div class="rel">
@@ -914,8 +936,10 @@
         </div>
       </div>`);
     const latar = $('#panelDongeng');
-    // Suara hewan aslinya dulu (bila ada), lalu Cuking membacakan dongeng
-    const baca = (lalu) => Suara.bunyi(bunyi, () => Suara.bicara(d.teks, { tulis: `📖 Dongeng ${d.tokoh}`, selesai: lalu }));
+    // Suara hewan aslinya dulu (bila ada), lalu Cuking membacakan dongeng.
+    // Dongeng yang sudah berisi tiruan bunyi tidak diawali suara hewan, karena bunyinya diputar di tengah cerita.
+    const adaBunyiDiCerita = pecahKalimat(d.teks).some((k) => BUNYI_KALIMAT[k]);
+    const baca = (lalu) => Suara.bunyi(adaBunyiDiCerita ? null : bunyi, () => Suara.bicara(d.teks, { tulis: `📖 Dongeng ${d.tokoh}`, selesai: lalu }));
     if (bunyi) $('#btnDongengBunyi').addEventListener('click', () => Suara.bunyi(bunyi));
     const tutup = () => { Sfx.pop(); Suara.diam(); tutupDongeng(); };
     $('#btnDongengUlang').addEventListener('click', () => { Sfx.pilih(); baca(); });

@@ -2,7 +2,8 @@
 
 Pemakaian (dari folder proyek, API key di tools/.elevenlabs-key):
     python tools/buat_bunyi_elevenlabs.py
-Hasil: suara-hewan/<hewan>.mp3 — lalu tambahkan ke BUNYI_HEWAN di data.js.
+Hasil: suara-hewan/<hewan>.mp3 — lalu tambahkan lumba-lumba, tikus, dan ular ke BUNYI_HEWAN di data.js,
+dan jalankan ulang node tools/daftar-kalimat.js (tiruan bunyinya otomatis tidak direkam lagi).
 """
 import json
 import subprocess
@@ -22,6 +23,8 @@ PERMINTAAN = {
     'lumba-lumba': 'A dolphin clicking and whistling underwater, realistic nature recording, no music',
     'tikus': 'A small mouse squeaking several times, close up, realistic, no music',
     'ular': 'A snake hissing slowly, close up, realistic, no music',
+    # Untuk "Ciap, ciap!" di dongeng ayam (lihat BUNYI_KALIMAT), bukan hewan tersendiri
+    'anak-ayam': 'Baby chicks peeping softly, close up, realistic farm recording, no music',
 }
 
 

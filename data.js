@@ -162,6 +162,30 @@ const BUNYI_HEWAN = {
   'burung beo': 'suara-hewan/burung-beo.mp3',
 };
 
+// Tiruan bunyi hewan tidak dibacakan Cuking, tapi diganti rekaman hewan aslinya (tulisannya tetap tampil).
+// Bila berkasnya belum ada, kalimat itu tetap diucapkan Cuking seperti biasa.
+const BUNYI_KALIMAT = {
+  'Meong!': 'suara-hewan/kucing.mp3',
+  'Meong, meong!': 'suara-hewan/kucing.mp3',
+  'Guk, guk, guk!': 'suara-hewan/anjing.mp3',
+  'Mooo!': 'suara-hewan/sapi.mp3',
+  'Kukuruyuuuk!': 'suara-hewan/ayam.mp3',
+  'Ciap, ciap!': 'suara-hewan/anak-ayam.mp3',
+  'Kwek, kwek, kwek!': 'suara-hewan/bebek.mp3',
+  'Mbeeek!': 'suara-hewan/kambing.mp3',
+  'Mbee, mbee!': 'suara-hewan/domba.mp3',
+  'Hiiihiii!': 'suara-hewan/kuda.mp3',
+  'Cit, cit, cit!': 'suara-hewan/tikus.mp3',
+  'Auuum!': 'suara-hewan/singa.mp3',
+  'Grrr!': 'suara-hewan/harimau.mp3',
+  'Uuk, aak, aak!': 'suara-hewan/monyet.mp3',
+  'Ssst!': 'suara-hewan/ular.mp3',
+  'Kung, kong, kung, kong!': 'suara-hewan/katak.mp3',
+  'Cuit, cuit, cuit!': 'suara-hewan/burung.mp3',
+  'Huu, huu!': 'suara-hewan/burung-hantu.mp3',
+  'Nguuung!': 'suara-hewan/lebah.mp3',
+};
+
 // Hewan yang petunjuknya mirip tidak dijadikan pilihan jawaban di soal yang sama
 const MIRIP_HEWAN = [
   ['kura-kura', 'siput'], ['gurita', 'laba-laba'], ['kuda', 'zebra'], ['panda', 'zebra'],
@@ -195,13 +219,13 @@ const BUAH = [
 
 // benda = contoh benda berwarna itu; mirip = warna yang mudah tertukar (tidak dijadikan pengecoh)
 const WARNA = [
-  { nama: 'merah',      hex: '#fa5252', mirip: ['merah muda', 'oranye'], benda: [{ e: '🍎', n: 'apel' }, { e: '🍓', n: 'stroberi' }, { e: '🚒', n: 'mobil pemadam kebakaran' }, { e: '🌹', n: 'bunga mawar' }, { e: '🍅', n: 'tomat' }] },
+  { nama: 'merah',      hex: '#fa5252', mirip: ['pink', 'oranye'], benda: [{ e: '🍎', n: 'apel' }, { e: '🍓', n: 'stroberi' }, { e: '🚒', n: 'mobil pemadam kebakaran' }, { e: '🌹', n: 'bunga mawar' }, { e: '🍅', n: 'tomat' }] },
   { nama: 'kuning',     hex: '#fcc419', mirip: ['oranye'], benda: [{ e: '🍌', n: 'pisang' }, { e: '🌻', n: 'bunga matahari' }, { e: '🐥', n: 'anak ayam' }, { e: '🍋', n: 'lemon' }, { e: '🧀', n: 'keju' }] },
   { nama: 'hijau',      hex: '#40c057', mirip: [], benda: [{ e: '🐸', n: 'katak' }, { e: '🥦', n: 'brokoli' }, { e: '🥒', n: 'timun' }, { e: '🌳', n: 'daun pohon' }] },
   { nama: 'biru',       hex: '#339af0', mirip: ['ungu'], benda: [{ e: '🐳', n: 'ikan paus' }, { e: '💧', n: 'tetes air' }, { e: '🫐', n: 'bluberi' }, { e: '👖', n: 'celana jins' }] },
   { nama: 'oranye',     hex: '#fd7e14', mirip: ['merah', 'kuning', 'cokelat'], benda: [{ e: '🍊', n: 'jeruk' }, { e: '🥕', n: 'wortel' }, { e: '🎃', n: 'labu' }, { e: '🦊', n: 'rubah' }] },
-  { nama: 'ungu',       hex: '#9c36b5', mirip: ['biru', 'merah muda'], benda: [{ e: '🍇', n: 'anggur' }, { e: '🍆', n: 'terong' }] },
-  { nama: 'merah muda', hex: '#f783ac', mirip: ['merah', 'ungu'], benda: [{ e: '🌸', n: 'bunga sakura' }, { e: '🦩', n: 'burung flamingo' }, { e: '🎀', n: 'pita' }] },
+  { nama: 'ungu',       hex: '#9c36b5', mirip: ['biru', 'pink'], benda: [{ e: '🍇', n: 'anggur' }, { e: '🍆', n: 'terong' }] },
+  { nama: 'pink',       hex: '#f783ac', mirip: ['merah', 'ungu'], benda: [{ e: '🌸', n: 'bunga sakura' }, { e: '🦩', n: 'burung flamingo' }, { e: '🎀', n: 'pita' }] },
   { nama: 'cokelat',    hex: '#8d5524', mirip: ['oranye', 'hitam'], benda: [{ e: '🐻', n: 'beruang' }, { e: '🥥', n: 'kelapa' }, { e: '🍫', n: 'cokelat batang' }, { e: '🪵', n: 'kayu' }] },
   { nama: 'hitam',      hex: '#212529', mirip: ['cokelat', 'abu-abu'], benda: [{ e: '🎩', n: 'topi pesulap' }, { e: '🎱', n: 'bola biliar' }, { e: '🕷️', n: 'laba-laba' }] },
   { nama: 'putih',      hex: '#ffffff', mirip: ['abu-abu'], benda: [{ e: '☁️', n: 'awan' }, { e: '⛄', n: 'boneka salju' }, { e: '🍚', n: 'nasi' }] },
@@ -283,7 +307,7 @@ const MENU = [
   { id: 'urut',    ikon: '🚂', nama: 'Urutkan Angka', warna: '#4dabf7' },
 ];
 
-// Jalan cerita dari pemilik proyek. teks = dibacakan pertama kali, singkat = saat pos dimainkan lagi
+// Jalan cerita dari pemilik proyek. teks = narasi yang selalu dibacakan Cuking saat layar cerita dibuka
 const CERITA = {
   pembukaan: {
     ikon: '🌈', judul: 'Selamat Datang di Taman Ceria', sub: 'Pembukaan', tombol: '▶ Mulai Petualangan',
@@ -292,16 +316,14 @@ const CERITA = {
       'Di sini ada banyak hal menarik yang bisa kita pelajari. Ada berbagai macam hewan, buah-buahan, warna, bentuk, angka, dan huruf.',
       'Yuk, kita mulai petualangan untuk mengenal hal-hal baru sambil bermain. Siapkan semangat kalian, ya!',
     ],
-    singkat: 'Halo lagi, teman-teman! Ayo lanjutkan petualangan di Taman Ceria!',
   },
   belajar: {
     ikon: '👋', judul: 'Kenalan Yuk', sub: 'Ayo Mengenal Lebih Banyak!',
     teks: [
       'Sebelum memulai berbagai permainan, kita akan berkenalan terlebih dahulu dengan hal-hal menarik yang ada di Taman Ceria.',
       'Di sini teman-teman bisa memilih gambar hewan, buah, angka, warna, bentuk, dan huruf. Sentuh setiap gambar yang tersedia untuk mengetahui nama dan mengenalnya lebih dekat.',
-      'Wah, ternyata banyak sekali hal menarik yang bisa kita pelajari! Ayo, sentuh gambarnya dan kenali satu per satu. Jangan lupa, ya, teman-teman!',
+      'Meong! Ayo, teman-teman, kita bermain bersama! Ada banyak tebak-tebakan seru yang harus dijawab. Selesaikan semua misinya dan kumpulkan bintang sebanyak-banyaknya, ya!',
     ],
-    singkat: 'Ayo kenalan lagi! Sentuh gambarnya, ya!',
   },
   hewan: {
     ikon: '🐶', judul: 'Tebak Hewan', sub: 'Mengenal Sahabat Hewan',
@@ -310,7 +332,6 @@ const CERITA = {
       'Coba dengarkan suara yang muncul, lalu pilih gambar hewan yang cocok dengan suara tersebut.',
       'Kira-kira suara hewan apa, ya? Yuk, kita tebak bersama! 🐾🎉',
     ],
-    singkat: 'Ayo dengarkan suaranya, lalu tebak hewannya!',
   },
   buah: {
     ikon: '🍎', judul: 'Tebak Buah', sub: 'Berkunjung ke Kebun Buah',
@@ -319,7 +340,6 @@ const CERITA = {
       'Ada apel, pisang, jeruk, mangga, dan berbagai buah lainnya.',
       'Ayo, tebak nama buah yang muncul. Siapa yang bisa menjawab dengan benar?',
     ],
-    singkat: 'Ayo ke kebun buah lagi! Tebak nama buahnya, ya!',
   },
   warna: {
     ikon: '🎨', judul: 'Tebak Warna', sub: 'Bermain di Taman Pelangi',
@@ -328,7 +348,6 @@ const CERITA = {
       'Ada banyak warna indah di sana, seperti merah, kuning, hijau, biru, dan ungu.',
       'Yuk, amati warna yang muncul dan tebak namanya!',
     ],
-    singkat: 'Ayo bermain di taman pelangi lagi! Tebak warnanya, ya!',
   },
   bentuk: {
     ikon: '🔺', judul: 'Tebak Bentuk', sub: 'Menjelajahi Dunia Bentuk',
@@ -337,7 +356,6 @@ const CERITA = {
       'Ada lingkaran, segitiga, persegi, dan persegi panjang.',
       'Ayo, kenali bentuk-bentuk tersebut dan tebak nama bentuk yang ditampilkan!',
     ],
-    singkat: 'Ayo jelajahi dunia bentuk lagi! Tebak bentuknya, ya!',
   },
   huruf: {
     ikon: '🔤', judul: 'Tebak Huruf', sub: 'Berkunjung ke Dunia Huruf',
@@ -346,7 +364,6 @@ const CERITA = {
       'Di sini ada banyak huruf dari A sampai Z. Teman-teman diajak mengenal dan menebak huruf yang muncul.',
       'Yuk, belajar huruf dengan cara yang menyenangkan!',
     ],
-    singkat: 'Ayo ke dunia huruf lagi! Tebak hurufnya, ya!',
   },
   hitung: {
     ikon: '🧮', judul: 'Ayo Berhitung', sub: 'Bermain Angka',
@@ -355,24 +372,20 @@ const CERITA = {
       'Kita akan menghitung berbagai benda dan mengenal jumlahnya.',
       'Ayo, hitung bersama dan pilih jawaban yang tepat!',
     ],
-    singkat: 'Ayo berhitung lagi bersama-sama!',
   },
   urut: {
     ikon: '🚂', judul: 'Urutkan Angka', sub: 'Petualangan Kereta Angka',
     teks: [
-      'Terakhir, kita bertemu dengan kereta angka!',
-      'Namun, angka-angka pada kereta masih belum tersusun dengan benar. Kita harus membantu menyusun angka sesuai urutannya.',
-      'Ayo, susun angka dari yang terkecil hingga terbesar agar kereta bisa melanjutkan perjalanan!',
+      'Teman-teman, lihat deh! Ada kereta api yang sedang membawa gerbong kosong, nih.',
+      'Wah, sepertinya gerbongnya belum tersusun dengan benar. Yuk, kita bantu Pak Masinis menyusun angka-angkanya, agar kereta bisa melanjutkan perjalanan!',
     ],
-    singkat: 'Tut tuut! Ayo bantu kereta angka lagi!',
   },
   penutup: {
     ikon: '🎉', judul: 'Hore, Kita Berhasil!', sub: 'Penutup',
     teks: [
-      'Hore! Kita sudah menyelesaikan semua petualangan di Taman Ceria!',
-      'Hari ini kita sudah berkenalan dengan berbagai macam hewan, buah, warna, bentuk, huruf, dan angka. Kita juga sudah bermain tebak-tebakan, belajar berhitung, serta mengurutkan angka.',
-      'Ternyata belajar itu seru dan menyenangkan!',
-      'Terima kasih sudah bermain bersama di Taman Ceria. Sampai jumpa di petualangan berikutnya!',
+      'Horeee! Kita sudah menyelesaikan semua misi petualangan di Taman Ceria!',
+      'Wah, seru sekali ya! Kita sudah belajar banyak hal dan berhasil mengumpulkan banyak bintang. ⭐',
+      'Tapi, petualangan kita belum selesai, lho! Yuk, main lagi dan kumpulkan bintang sebanyak-banyaknya! Ayo, teman-teman, kita cari bintang lebih banyak lagi! 🌟🐱',
     ],
   },
 };
