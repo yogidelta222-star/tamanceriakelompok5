@@ -142,10 +142,12 @@
         const ucapkan = () => {
           if (id !== this.id || lewat || diucap) return;
           diucap = true;
-          // Penjaga bila audio / suara macet: lanjut ke kalimat berikutnya
-          clearTimeout(jaga);
-          jaga = setTimeout(lanjutkan, (2000 + k.length * 120) / cepat);
+          // Penjaga bila audio / suara macet: lanjut ke kalimat berikutnya.
+          // Untuk rekaman, batasnya mengikuti panjang ucapan + waktu memuat, agar ucapan panjang tidak terpotong.
           const klip = rekaman && KLIP_SUARA[k];
+          const lamaKlip = Array.isArray(klip) && klip[1] ? (klip[1] - (klip[2] ?? AWAL_KLIP)) * 1000 + 3000 : 0;
+          clearTimeout(jaga);
+          jaga = setTimeout(lanjutkan, Math.max(2000 + k.length * 120, lamaKlip) / cepat);
           if (klip) {
             const [berkas, selesaiDetik, mulaiDetik] = Array.isArray(klip) ? klip : [klip, null];
             // Hening di awal & akhir rekaman dilewati (detik mulai dari daftar.js bila ada)
@@ -902,7 +904,7 @@
       html: `<span class="huruf" style="--c:${WARNA_ANGKA[i % 10]}">${h.h}</span>${h.gambar
         ? `<img class="foto-kecil" src="${h.gambar}" alt="${h.kata}" draggable="false">`
         : `<span class="emoji-kecil">${h.emoji}</span>`}`,
-      label: h.kata, ucap: `${besarAwal(h.eja)}. ${besarAwal(h.eja)}, ${h.kata}.`, tulis: `${h.h} — ${h.kata} ${h.emoji}`,
+      label: h.kata, ucap: `Ini huruf ${h.eja}. ${besarAwal(h.eja)}, ${h.kata}.`, tulis: `${h.h} — ${h.kata} ${h.emoji}`,
     })),
   };
 

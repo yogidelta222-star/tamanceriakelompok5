@@ -7,3 +7,8 @@ __pycache__/
 
 # API key ElevenLabs (rahasia, jangan diunggah)
 tools/.elevenlabs-key
+
+# Kandidat suara hewan yang belum dipilih, dan hasil pemeriksaan suara
+suara-hewan/_pilihan/
+tools/periksa-suara.json
+tools/ulang-suara.json

@@ -160,6 +160,10 @@ const BUNYI_HEWAN = {
   'lebah': 'suara-hewan/lebah.mp3',
   'gajah': 'suara-hewan/gajah.mp3',
   'burung beo': 'suara-hewan/burung-beo.mp3',
+  // Dibuat dengan ElevenLabs Sound Effects (tidak ada rekaman asli yang cocok)
+  'tikus': 'suara-hewan/tikus.mp3',
+  'ular': 'suara-hewan/ular.mp3',
+  'lumba-lumba': 'suara-hewan/lumba-lumba.mp3',
 };
 
 // Tiruan bunyi hewan tidak dibacakan Cuking, tapi diganti rekaman hewan aslinya (tulisannya tetap tampil).

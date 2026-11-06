@@ -79,7 +79,7 @@ BENTUK.forEach((s) => {
 });
 HURUF.forEach((h) => {
   const E = besarAwal(h.eja);
-  tambah(`${E}.`, `Itu huruf ${h.eja}.`, `Ini huruf ${h.eja}.`, `${E}, ${h.kata}!`, `${E}, ${h.kata}.`);
+  tambah(`Itu huruf ${h.eja}.`, `Ini huruf ${h.eja}.`, `${E}, ${h.kata}!`, `${E}, ${h.kata}.`);
   // Tebak Huruf: "Mana huruf B?" dan "Bola. Huruf depannya apa?"
   tambah(`Mana huruf ${h.eja}?`, `${h.kata}. Huruf depannya apa?`, `${h.kata}, dimulai dengan huruf ${h.eja}.`);
 });

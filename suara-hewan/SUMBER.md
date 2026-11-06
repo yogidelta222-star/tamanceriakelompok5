@@ -8,7 +8,6 @@ Rekaman suara hewan asli dari [Wikimedia Commons](https://commons.wikimedia.org)
 | `anjing.mp3` | [Barking of a dog 2.ogg](https://commons.wikimedia.org/wiki/File:Barking_of_a_dog_2.ogg) | Amada44 | CC BY-SA 3.0 |
 | `sapi.mp3` | [Single Cow Moo.ogg](https://commons.wikimedia.org/wiki/File:Single_Cow_Moo.ogg) | MichaeltheFox8621 | CC BY-SA 4.0 |
 | `ayam.mp3` | [Rooster crowing.ogg](https://commons.wikimedia.org/wiki/File:Rooster_crowing.ogg) | Filo gèn' | CC BY-SA 4.0 |
-| `bebek.mp3` | [Pekin duck & mallard.ogg](https://commons.wikimedia.org/wiki/File:Pekin_duck_%26_mallard.ogg) | WaderClub | CC BY-SA 4.0 |
 | `kambing.mp3` | [Herd of goats bleating.ogg](https://commons.wikimedia.org/wiki/File:Herd_of_goats_bleating.ogg) | stephan | Public domain |
 | `domba.mp3` | [Sheep bleating.ogg](https://commons.wikimedia.org/wiki/File:Sheep_bleating.ogg) | earthcalling | Public domain |
 | `kuda.mp3` | [Wiehern.ogg](https://commons.wikimedia.org/wiki/File:Wiehern.ogg) | Hü. | Public domain |
@@ -21,3 +20,17 @@ Rekaman suara hewan asli dari [Wikimedia Commons](https://commons.wikimedia.org)
 | `lebah.mp3` | [Bee Buzzing Sound - Animal Sounds.opus](https://commons.wikimedia.org/wiki/File:Bee_Buzzing_Sound_-_Animal_Sounds.opus) | Free Sounds Library User Spanac | CC BY 3.0 |
 | `gajah.mp3` | [Elephant voice - trumpeting.ogg](https://commons.wikimedia.org/wiki/File:Elephant_voice_-_trumpeting.ogg) | தகவலுழவன் | CC0 |
 | `burung-beo.mp3` | [African grey parrot sound.wav](https://commons.wikimedia.org/wiki/File:African_grey_parrot_sound.wav) | Ganesh Mohan T | CC BY-SA 4.0 |
+
+## Dibuat dengan ElevenLabs Sound Effects
+
+Hewan berikut tidak punya rekaman asli yang cocok di Wikimedia Commons, jadi suaranya dibuat dengan
+[ElevenLabs Sound Effects](https://elevenlabs.io/sound-effects) (paket berbayar, boleh dipakai komersial).
+
+| Berkas | Keterangan |
+|---|---|
+| `tikus.mp3` | Cicitan tikus |
+| `ular.mp3` | Desis ular |
+| `lumba-lumba.mp3` | Siulan dan klik lumba-lumba |
+| `anak-ayam.mp3` | Ciapan anak ayam (untuk "Ciap, ciap!" di dongeng ayam) |
+| `bebek.mp3` | Kwek-kwek bebek (menggantikan rekaman Wikimedia yang kurang jelas) |
+
