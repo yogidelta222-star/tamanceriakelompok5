@@ -17,10 +17,10 @@ const konteks = {};
 vm.createContext(konteks);
 vm.runInContext(
   fs.readFileSync(path.join(akar, 'data.js'), 'utf8') +
-    '\n;Object.assign(this, { ANGKA_KATA, HEWAN, DONGENG, BUAH, WARNA, BENTUK, HURUF, BENDA, MENU, CERITA, PUJIAN, SEMANGAT, BUNYI_KALIMAT });',
+    '\n;Object.assign(this, { ANGKA_KATA, HEWAN, HEWAN_KENALAN, DONGENG, BUAH, WARNA, BENTUK, HURUF, BENDA, MENU, CERITA, PUJIAN, SEMANGAT, BUNYI_KALIMAT });',
   konteks,
 );
-const { ANGKA_KATA, HEWAN, DONGENG, BUAH, WARNA, BENTUK, HURUF, BENDA, MENU, CERITA, PUJIAN, SEMANGAT, BUNYI_KALIMAT } = konteks;
+const { ANGKA_KATA, HEWAN, HEWAN_KENALAN, DONGENG, BUAH, WARNA, BENTUK, HURUF, BENDA, MENU, CERITA, PUJIAN, SEMANGAT, BUNYI_KALIMAT } = konteks;
 
 const kata = (n) => ANGKA_KATA[n] || String(n);
 const besarAwal = (s) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -41,7 +41,7 @@ const tambah = (...teks) => teks.forEach((t) => pecahKalimat(t).forEach((k) => s
 tambah(
   'Meong! Halo teman! Aku Cuking. Ayo kita belajar sambil bermain!',
   'Suara nyala!',
-  'Ayo kenalan! Sentuh gambarnya, nanti Cuking sebutkan namanya.',
+  'Ayo kenalan! Sentuh gambarnya, nanti Cuking ceritakan dongengnya.',
   'Hore! Kamu hebat sekali! Kamu dapat lima bintang! Mau main lagi?',
   'Hore! Kamu hebat sekali! Kamu dapat lima bintang! Semua pos sudah selesai! Ayo lihat kejutannya!',
   'Hore! Pos Kenalan Yuk selesai!',
@@ -53,11 +53,10 @@ tambah(
 Object.values(CERITA).forEach((c) => tambah(c.teks.join(' ')));
 MENU.forEach((m) => tambah(`Ayo lanjut ke ${m.nama}!`));
 rentang(1, MENU.length).forEach((n) => tambah(`Selesaikan semua pos dulu, ya! Masih ada ${kata(n)} pos lagi.`));
-['hewan', 'buah', 'angka', 'warna', 'bentuk', 'huruf'].forEach((t) => tambah(`Ayo kenalan dengan ${t}!`));
 rentang(1, 10).forEach((n) => tambah(`${besarAwal(kata(n))}!`, `${besarAwal(kata(n))}.`, `Itu angka ${kata(n)}.`));
 
 // ---------- Hewan: dongeng (Kenalan Yuk) & kuis dari petunjuk dongeng (Tebak Hewan) ----------
-HEWAN.forEach((h) => {
+HEWAN_KENALAN.forEach((h) => {
   const d = DONGENG[h.nama];
   tambah(d.teks, `Itu ${h.nama}.`);
   d.petunjuk.forEach((p) => tambah(`Ingat dongengnya? Siapa yang ${p}?`, `Itu ${d.tokoh} dari dongeng tadi! ${besarAwal(d.tokoh)} ${p}.`));
@@ -67,19 +66,19 @@ HEWAN.forEach((h) => {
 tambah('Buah apa ini?', 'Warna apa ini?', 'Bentuk apa ini?');
 BUAH.forEach((b) => tambah(
   `${besarAwal(b.nama)}.`, `Itu buah ${b.nama}.`, `Ini buah ${b.nama}.`,
-  `Warnanya ${b.warna}, rasanya ${b.rasa}!`, `Warnanya ${b.warna}, rasanya ${b.rasa}.`,
+  `Warnanya ${b.warna}, rasanya ${b.rasa}!`,
 ));
 WARNA.forEach((w) => {
-  tambah(`${besarAwal(w.nama)}.`, `Itu warna ${w.nama}.`, `Seperti ${w.benda[0].n}.`);
+  tambah(`${besarAwal(w.nama)}.`, `Itu warna ${w.nama}.`);
   w.benda.forEach((b) => tambah(`Ini warna ${w.nama}, seperti ${b.n}.`));
 });
 BENTUK.forEach((s) => {
-  tambah(`${besarAwal(s.nama)}.`, `Itu ${s.nama}.`, `Seperti ${s.contoh[0].n}.`);
+  tambah(`${besarAwal(s.nama)}.`, `Itu ${s.nama}.`);
   s.contoh.forEach((c) => tambah(`Ini ${s.nama}, seperti ${c.n}.`));
 });
 HURUF.forEach((h) => {
   const E = besarAwal(h.eja);
-  tambah(`Itu huruf ${h.eja}.`, `Ini huruf ${h.eja}.`, `${E}, ${h.kata}!`, `${E}, ${h.kata}.`);
+  tambah(`Itu huruf ${h.eja}.`, `Ini huruf ${h.eja}.`, `${E}, ${h.kata}!`);
   // Tebak Huruf: "Mana huruf B?" dan "Bola. Huruf depannya apa?"
   tambah(`Mana huruf ${h.eja}?`, `${h.kata}. Huruf depannya apa?`, `${h.kata}, dimulai dengan huruf ${h.eja}.`);
 });

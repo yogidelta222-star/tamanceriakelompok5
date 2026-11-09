@@ -157,7 +157,10 @@
             if (selesaiDetik) {
               a.onplaying = () => {
                 clearTimeout(potong);
-                potong = setTimeout(() => { a.pause(); lanjutkan(); }, Math.max(0, (selesaiDetik - a.currentTime) * 1000) / cepat);
+                // Rekaman tanpa hening di ujung dibiarkan habis sendiri: suara perangkat keluar sedikit
+                // terlambat, jadi kalau dihentikan dengan timer, suku kata terakhir bisa ikut terpotong
+                if (!a.duration || a.duration - selesaiDetik < 0.1) return;
+                potong = setTimeout(() => { a.pause(); lanjutkan(); }, (Math.max(0, selesaiDetik - a.currentTime) * 1000 + 150) / cepat);
               };
             }
             a.onerror = () => this.ucapkanBrowser(k, f, id, lanjutkan);
@@ -475,7 +478,7 @@
     $$('[data-id]', layar).forEach((b) => b.addEventListener('click', () => {
       Sfx.pop();
       const id = b.dataset.id;
-      layarCerita(id, () => (id === 'belajar' ? layarBelajar('hewan') : mulaiGame(id)));
+      layarCerita(id, () => (id === 'belajar' ? layarBelajar() : mulaiGame(id)));
     }));
     $('#posAkhir').addEventListener('click', () => {
       Sfx.pop();
@@ -557,15 +560,15 @@
     hewan(no) {
       const jml = no < 2 ? 3 : 4;
       const didengar = (h) => dongengDidengar.has(h.nama);
-      const masihAda = HEWAN.some((h) => didengar(h) && !main.dipakai.has('hewan:' + h.nama));
-      const t = ambilBaru(HEWAN, masihAda ? { saring: didengar } : {});
+      const masihAda = HEWAN_KENALAN.some((h) => didengar(h) && !main.dipakai.has('hewan:' + h.nama));
+      const t = ambilBaru(HEWAN_KENALAN, masihAda ? { saring: didengar } : {});
       const d = DONGENG[t.nama];
       const p = acak(d.petunjuk);
       const mirip = new Set(MIRIP_HEWAN.filter((g) => g.includes(t.nama)).flat());
       return {
         ucap: `Ingat dongengnya? Siapa yang ${p}?`,
         tulis: `Siapa yang ${p}? 🤔`,
-        pilihan: buatOpsi(HEWAN, t, jml, (h) => !mirip.has(h.nama)).map((h) => ({
+        pilihan: buatOpsi(HEWAN_KENALAN, t, jml, (h) => !mirip.has(h.nama)).map((h) => ({
           benar: h === t, html: gambarHTML(h), label: h.nama, salah: `Itu ${h.nama}.`,
         })),
         benar: `Itu ${d.tokoh} dari dongeng tadi! ${besarAwal(d.tokoh)} ${p}.`,
@@ -871,43 +874,6 @@
   }
 
   // ================= KENALAN YUK (galeri belajar) =================
-  const TAB_BELAJAR = [
-    { id: 'hewan', ikon: '🐶', nama: 'Hewan' },
-    { id: 'buah', ikon: '🍎', nama: 'Buah' },
-    { id: 'angka', ikon: '🔢', nama: 'Angka' },
-    { id: 'warna', ikon: '🎨', nama: 'Warna' },
-    { id: 'bentuk', ikon: '🔺', nama: 'Bentuk' },
-    { id: 'huruf', ikon: '🔤', nama: 'Huruf' },
-  ];
-
-  const ITEM_BELAJAR = {
-    // Hewan membuka dongengnya, bukan sekadar disebut namanya
-    hewan: () => HEWAN.map((h) => ({ html: gambarHTML(h), label: h.nama, hewan: h })),
-    buah: () => BUAH.map((b) => ({
-      html: gambarHTML(b), label: b.nama,
-      ucap: `${besarAwal(b.nama)}. Warnanya ${b.warna}, rasanya ${b.rasa}.`,
-      tulis: `${b.emoji} ${besarAwal(b.nama)}: warnanya ${b.warna}, rasanya ${b.rasa}`,
-    })),
-    angka: () => Array.from({ length: 10 }, (_, i) => i + 1).map((n) => ({
-      html: angkaHTML(n), label: kata(n),
-      ucap: besarAwal(kata(n)) + '.', tulis: `${n} — ${kata(n)}`,
-    })),
-    warna: () => WARNA.map((w) => ({
-      html: catHTML(w.hex), label: w.nama,
-      ucap: `${besarAwal(w.nama)}. Seperti ${w.benda[0].n}.`, tulis: `${w.benda[0].e} ${besarAwal(w.nama)}, seperti ${w.benda[0].n}`,
-    })),
-    bentuk: () => BENTUK.map((b, i) => ({
-      html: bentukHTML(b, WARNA_ANGKA[i % 10]), label: b.nama,
-      ucap: `${besarAwal(b.nama)}. Seperti ${b.contoh[0].n}.`, tulis: `${b.contoh[0].e} ${besarAwal(b.nama)}, seperti ${b.contoh[0].n}`,
-    })),
-    huruf: () => HURUF.map((h, i) => ({
-      html: `<span class="huruf" style="--c:${WARNA_ANGKA[i % 10]}">${h.h}</span>${h.gambar
-        ? `<img class="foto-kecil" src="${h.gambar}" alt="${h.kata}" draggable="false">`
-        : `<span class="emoji-kecil">${h.emoji}</span>`}`,
-      label: h.kata, ucap: `Ini huruf ${h.eja}. ${besarAwal(h.eja)}, ${h.kata}.`, tulis: `${h.h} — ${h.kata} ${h.emoji}`,
-    })),
-  };
-
   // ---------- Dongeng hewan ----------
   // Hewan yang dongengnya sudah dibuka anak (dipakai untuk memilih soal Tebak Hewan)
   const dongengDidengar = new Set(simpan.ambil('tc_dongeng', []) || []);
@@ -916,6 +882,12 @@
     const latar = $('#panelDongeng');
     if (latar) latar.remove();
   }
+
+  // Dongeng panjang dibagi per 4 kalimat agar mudah dibaca
+  const paragrafDongeng = (teks) => {
+    const kalimat = pecahKalimat(teks);
+    return Array.from({ length: Math.ceil(kalimat.length / 4) }, (_, i) => `<p>${kalimat.slice(i * 4, i * 4 + 4).join(' ')}</p>`).join('');
+  };
 
   function bukaDongeng(h, selesai) {
     tutupDongeng();
@@ -929,7 +901,7 @@
           <div class="dongeng-gambar">${gambarHTML(h)}</div>
           <p class="cerita-sub">Dongeng</p>
           <h2 class="dongeng-judul">${d.tokoh}</h2>
-          <p class="dongeng-teks">${d.teks}</p>
+          <div class="dongeng-teks">${paragrafDongeng(d.teks)}</div>
           <div class="panel-aksi">
             ${bunyi ? '<button class="btn-kecil" id="btnDongengBunyi">🐾 Suaranya</button>' : ''}
             <button class="btn-kecil" id="btnDongengUlang">🔊 Dengar lagi</button>
@@ -954,26 +926,24 @@
   const SYARAT_KENALAN = 6;
   const dikenal = new Set();
 
-  function layarBelajar(tab, sapa) {
+  function layarBelajar() {
     main = null;
-    const items = ITEM_BELAJAR[tab]();
     tampil(`
       <section class="belajar">
-        <div class="tab">
-          ${TAB_BELAJAR.map((t) => `<button class="tab-btn ${t.id === tab ? 'aktif' : ''}" data-tab="${t.id}"><span>${t.ikon}</span>${t.nama}</button>`).join('')}
-        </div>
-        <div class="galeri">
-          ${items.map((it, i) => `<button class="kartu" data-i="${i}">${it.html}<span class="label">${it.label}</span></button>`).join('')}
-        </div>
+        ${KATEGORI_HEWAN.map((k) => `
+          <div class="kategori-hewan" style="--k:${k.warna}">
+            <h2 class="kategori-judul"><span>${k.ikon}</span>${k.judul}<small>${k.ket}</small></h2>
+            <div class="galeri">
+              ${k.hewan.map((n) => { const h = HEWAN.find((x) => x.nama === n); return `<button class="kartu" data-hewan="${n}">${gambarHTML(h)}<span class="label">${n}</span></button>`; }).join('')}
+            </div>
+          </div>`).join('')}
       </section>`);
-    $$('.tab-btn', layar).forEach((b) => b.addEventListener('click', () => { Sfx.pop(); layarBelajar(b.dataset.tab); }));
     $$('.kartu', layar).forEach((b) => b.addEventListener('click', () => {
-      const it = items[+b.dataset.i];
       Sfx.pop();
       b.classList.remove('loncat');
       void b.offsetWidth;
       b.classList.add('loncat');
-      dikenal.add(`${tab}:${b.dataset.i}`);
+      dikenal.add(b.dataset.hewan);
       const baruSelesai = dikenal.size >= SYARAT_KENALAN && tandaiSelesai('belajar');
       const rayakan = baruSelesai ? () => {
         Sfx.benar();
@@ -981,12 +951,9 @@
         const berikut = posBerikut();
         Suara.bicara(`Hore! Pos Kenalan Yuk selesai!${berikut ? ` Ayo lanjut ke ${berikut.nama}!` : ''}`, { tulis: 'Hore! Pos Kenalan Yuk selesai ✅', gaya: 'senang' });
       } : undefined;
-      if (it.hewan) bukaDongeng(it.hewan, rayakan);
-      else Suara.bicara(it.ucap, { tulis: it.tulis, selesai: rayakan });
+      bukaDongeng(HEWAN.find((x) => x.nama === b.dataset.hewan), rayakan);
     }));
-    const namaTab = TAB_BELAJAR.find((t) => t.id === tab).nama.toLowerCase();
-    if (sapa) Suara.bicara('Ayo kenalan! Sentuh gambarnya, nanti Cuking sebutkan namanya.', { tulis: 'Ayo kenalan! Sentuh gambarnya ya 👆' });
-    else Suara.bicara(`Ayo kenalan dengan ${namaTab}!`, { tulis: `Ayo kenalan dengan ${namaTab}! 👆` });
+    Suara.bicara('Ayo kenalan! Sentuh gambarnya, nanti Cuking ceritakan dongengnya.', { tulis: 'Ayo kenalan! Sentuh gambarnya ya 👆' });
   }
 
   // ================= PENGATURAN SUARA (untuk guru / orang tua) =================

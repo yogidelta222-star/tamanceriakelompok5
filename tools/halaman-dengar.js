@@ -4,7 +4,8 @@
    kalimat rawan (huruf, kalimat sangat pendek, bunyi hewan),
    dan kalimat yang masih ditandai pemeriksa otomatis.
 
-   Jalankan:  node tools/halaman-dengar.js
+   Jalankan:  node tools/halaman-dengar.js [daftar.json]
+              (dengan daftar.json: hanya kalimat di daftar itu)
    Buka:      http://localhost:5500/.claude/dengar/   (saat pratinjau lokal berjalan)
    ========================================================= */
 const fs = require('fs');
@@ -33,9 +34,10 @@ const klip = (k) => {
   return c ? { k, f: `../../suara/${c[0]}`, a: c[2] ?? 0.2, b: c[1] } : null;
 };
 
+const hanya = process.argv[2] ? JSON.parse(fs.readFileSync(process.argv[2], 'utf8')) : null;
 const pilihan = {};
 const folderPilihan = path.join(akar, 'suara-hewan', '_pilihan');
-if (fs.existsSync(folderPilihan)) {
+if (!hanya && fs.existsSync(folderPilihan)) {
   fs.readdirSync(folderPilihan).filter((f) => /-\d+\.mp3$/.test(f)).sort().forEach((f) => {
     const nama = f.replace(/-\d+\.mp3$/, '');
     (pilihan[nama] = pilihan[nama] || []).push(`../../suara-hewan/_pilihan/${f}`);
@@ -54,14 +56,16 @@ const huruf = ambil((k) => /huruf|^[A-Z][a-z]{0,2}[.!,]/.test(k));
 const pendek = ambil((k) => k.length <= 14);
 const bunyi = ambil((k) => /guk|meong|mooo|cit|cuit|kwek|mbe|Cuking/i.test(k));
 
-const bagian = [
+const bagian = hanya ? [
+  { id: 'baru', judul: '📖 Kalimat dongeng baru', ket: 'Perhatikan logatnya: harus terdengar Indonesia, bukan Malaysia.', isi: hanya.map((k) => { const c = klip(k); return c && { ...c, cat: (periksa[k]?.alasan || []).join(', ') }; }) },
+].map((b) => ({ ...b, isi: b.isi.filter(Boolean) })) : [
   { id: 'ditandai', judul: '⚠️ Masih ditandai pemeriksa otomatis', ket: 'Sudah direkam ulang otomatis, tapi mesin masih ragu. Mohon didengar baik-baik.', isi: ditandai.map((k) => ({ ...klip(k), cat: periksa[k].alasan.join(', ') })) },
   { id: 'narasi', judul: '📖 Narasi cerita', ket: 'Kalimat narasi di layar cerita tiap pos.', isi: narasi.map(klip) },
   { id: 'huruf', judul: '🔤 Huruf', ket: 'Pastikan huruf diucapkan benar (a, be, ce, de, ... eks, ye, zet).', isi: huruf.map(klip) },
   { id: 'pendek', judul: '🔢 Kalimat sangat pendek', ket: 'Angka dan kata singkat. Pastikan jelas, tidak terpotong.', isi: pendek.map(klip) },
   { id: 'bunyi', judul: '🐱 Bunyi hewan dalam kalimat & nama Cuking', ket: '', isi: bunyi.map(klip) },
 ].map((b) => ({ ...b, isi: b.isi.filter(Boolean) }));
-const asli = Object.entries(BUNYI_HEWAN).map(([nama, f]) => ({ k: nama, f: `../../${f}` }));
+const asli = hanya ? [] : Object.entries(BUNYI_HEWAN).map(([nama, f]) => ({ k: nama, f: `../../${f}` }));
 
 const data = { pilihan, asli, bagian };
 const html = `<!doctype html>
@@ -126,11 +130,11 @@ function putar(it, el, lalu) {
   let selesai = false;
   const akhir = () => { if (selesai) return; selesai = true; if (audio === a) a.pause(); if (lalu) setTimeout(lalu, 450); };
   a.onended = akhir; a.onerror = akhir;
-  if (it.b) a.onplaying = () => setTimeout(akhir, Math.max(0, (it.b - a.currentTime) * 1000));
+  if (it.b) a.onplaying = () => { if (a.duration && a.duration - it.b >= 0.1) setTimeout(akhir, Math.max(0, (it.b - a.currentTime) * 1000) + 150); };
   a.play().catch(akhir);
 }
 
-let html = '<h2>🐾 Pilih suara hewan baru</h2><p class="ket">Dengarkan ketiga versi, lalu pilih yang paling mirip suara aslinya.</p>';
+let html = Object.keys(DATA.pilihan).length ? '<h2>🐾 Pilih suara hewan baru</h2><p class="ket">Dengarkan ketiga versi, lalu pilih yang paling mirip suara aslinya.</p>' : '';
 for (const [nama, daftar] of Object.entries(DATA.pilihan)) {
   html += '<div class="hewan"><b>' + nama + '</b><div class="versi">' + daftar.map((f, i) =>
     '<label><input type="radio" name="p-' + nama + '" value="' + (i + 1) + '"' + (nilai['p:' + nama] == i + 1 ? ' checked' : '') + '>' +
@@ -139,7 +143,7 @@ for (const [nama, daftar] of Object.entries(DATA.pilihan)) {
 const baris = (id, it, no) => '<div class="item" data-id="' + id + '"><span class="no">' + no + '</span>' +
   '<button class="putar">▶</button><div class="teks">' + esc(it.k) + (it.cat ? '<small>' + esc(it.cat) + '</small>' : '') + '</div>' +
   '<div class="nilai"><button class="ya">✅</button><button class="tidak">❌</button></div></div>';
-html += '<h2>🐮 Suara hewan asli (' + DATA.asli.length + ')</h2><p class="ket">Rekaman hewan sungguhan yang sudah dipakai.</p>' +
+if (DATA.asli.length) html += '<h2>🐮 Suara hewan asli (' + DATA.asli.length + ')</h2><p class="ket">Rekaman hewan sungguhan yang sudah dipakai.</p>' +
   '<div class="alat"><button class="urut" data-b="asli">▶ Putar berurutan</button></div>' +
   DATA.asli.map((it, i) => baris('asli:' + it.k, it, i + 1)).join('');
 let no = 0;

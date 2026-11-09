@@ -51,9 +51,12 @@ class GagalElevenLabs(Exception):
     pass
 
 
+AWALAN = ''   # diisi '[Indonesian accent] ' oleh --logat; tidak ikut diucapkan
+
+
 def rekam(kalimat: str, kunci: str) -> bytes:
     url = f'https://api.elevenlabs.io/v1/text-to-speech/{SUARA_ID}?output_format=mp3_44100_128'
-    badan = json.dumps({'text': kalimat, 'model_id': MODEL, 'language_code': 'id', 'voice_settings': PENGATURAN}).encode()
+    badan = json.dumps({'text': AWALAN + kalimat, 'model_id': MODEL, 'language_code': 'id', 'voice_settings': PENGATURAN}).encode()
     req = urllib.request.Request(url, data=badan, method='POST',
                                  headers={'xi-api-key': kunci, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg'})
     for coba in range(6):
@@ -103,7 +106,10 @@ def utama():
     ap.add_argument('--contoh', type=int, default=0, help='rekam N kalimat contoh saja')
     ap.add_argument('--ulang', help='file JSON berisi daftar kalimat yang direkam ulang (menimpa rekaman lama)')
     ap.add_argument('--serentak', type=int, default=4, help='jumlah rekaman yang diminta bersamaan')
+    ap.add_argument('--logat', action='store_true', help='beri petunjuk logat Indonesia (mencegah logat Malaysia)')
     arg = ap.parse_args()
+    global AWALAN
+    AWALAN = '[Indonesian accent] ' if arg.logat else ''
 
     kalimat = json.loads((AKAR / 'tools' / 'kalimat.json').read_text(encoding='utf-8'))
     sudah = set(json.loads(SELESAI.read_text(encoding='utf-8'))) if SELESAI.exists() else set()
