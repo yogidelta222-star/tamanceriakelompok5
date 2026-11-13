@@ -1,5 +1,5 @@
 /* =========================================================
-   Menyusun daftar SEMUA kalimat yang bisa diucapkan Cuking,
+   Menyusun daftar SEMUA kalimat yang bisa diucapkan Kiku,
    untuk dibuatkan rekamannya oleh tools/buat_suara.py.
 
    Jalankan:  node tools/daftar-kalimat.js
@@ -39,9 +39,9 @@ const tambah = (...teks) => teks.forEach((t) => pecahKalimat(t).forEach((k) => s
 
 // ---------- Umum ----------
 tambah(
-  'Meong! Halo teman! Aku Cuking. Ayo kita belajar sambil bermain!',
+  'Cuit, cuit, cuit! Halo teman! Aku Kiku. Ayo kita belajar sambil bermain!',
   'Suara nyala!',
-  'Ayo kenalan! Sentuh gambarnya, nanti Cuking ceritakan dongengnya.',
+  'Ayo kenalan! Sentuh gambarnya, nanti Kiku ceritakan dongengnya.',
   'Hore! Kamu hebat sekali! Kamu dapat lima bintang! Mau main lagi?',
   'Hore! Kamu hebat sekali! Kamu dapat lima bintang! Semua pos sudah selesai! Ayo lihat kejutannya!',
   'Hore! Pos Kenalan Yuk selesai!',
@@ -107,7 +107,7 @@ for (let pjg = 3; pjg <= 5; pjg++) {
 }
 tambah(`${deretKata(1, 10)}.`); // soal terakhir: kereta 1 sampai 10
 
-// Tiruan bunyi yang sudah punya rekaman hewan asli tidak perlu direkam suara Cuking
+// Tiruan bunyi yang sudah punya rekaman hewan asli tidak perlu direkam suara Kiku
 const diganti = Object.keys(BUNYI_KALIMAT).filter((k) => fs.existsSync(path.join(akar, BUNYI_KALIMAT[k])));
 diganti.forEach((k) => semua.delete(k));
 

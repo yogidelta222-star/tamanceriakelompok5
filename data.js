@@ -166,8 +166,8 @@ const BUNYI_HEWAN = {
   'lumba-lumba': 'suara-hewan/lumba-lumba.mp3',
 };
 
-// Tiruan bunyi hewan tidak dibacakan Cuking, tapi diganti rekaman hewan aslinya (tulisannya tetap tampil).
-// Bila berkasnya belum ada, kalimat itu tetap diucapkan Cuking seperti biasa.
+// Tiruan bunyi hewan tidak dibacakan Kiku, tapi diganti rekaman hewan aslinya (tulisannya tetap tampil).
+// Bila berkasnya belum ada, kalimat itu tetap diucapkan Kiku seperti biasa.
 const BUNYI_KALIMAT = {
   'Meong!': 'suara-hewan/kucing.mp3',
   'Meong, meong!': 'suara-hewan/kucing.mp3',
@@ -319,14 +319,17 @@ const MENU = [
   { id: 'urut',    ikon: '🚂', nama: 'Urutkan Angka', warna: '#4dabf7' },
 ];
 
-// Jalan cerita dari pemilik proyek. teks = narasi yang selalu dibacakan Cuking saat layar cerita dibuka
+// Jalan cerita dari pemilik proyek. teks = narasi yang selalu dibacakan Kiku saat layar cerita dibuka
 const CERITA = {
   pembukaan: {
     ikon: '🌈', judul: 'Selamat Datang di Taman Ceria', sub: 'Pembukaan', tombol: '▶ Mulai Petualangan',
     teks: [
       'Halo, teman-teman! Selamat datang di Taman Ceria! 🌻',
-      'Di sini ada banyak hal menarik yang bisa kita pelajari. Ada berbagai macam hewan, buah-buahan, warna, bentuk, angka, dan huruf.',
-      'Yuk, kita mulai petualangan untuk mengenal hal-hal baru sambil bermain. Siapkan semangat kalian, ya!',
+      'Wah, di taman ini ada banyak sekali hewan yang menarik, lho! Ada sapi, kelinci, singa, harimau, ayam, beruang, dan masih banyak lagi.',
+      'Tahukah teman-teman? Setiap hewan memiliki makanan yang berbeda. Ada hewan yang suka makan tumbuhan, ada yang makan daging, dan ada juga yang makan tumbuhan serta hewan lainnya.',
+      'Nah, hari ini kita akan berpetualang untuk mengenal tiga kelompok hewan, yaitu herbivora, karnivora, dan omnivora.',
+      'Kita akan mendengarkan cerita, menebak nama hewan, mencocokkan makanan, dan menyelesaikan berbagai permainan seru!',
+      'Yuk, teman-teman! Siapkan semangat kalian. Mari kita mulai petualangan mengenal dunia hewan di Taman Ceria! 🐰🦁🐻',
     ],
   },
   belajar: {
@@ -334,7 +337,7 @@ const CERITA = {
     teks: [
       'Sebelum memulai berbagai permainan, kita akan berkenalan terlebih dahulu dengan hal-hal menarik yang ada di Taman Ceria.',
       'Di sini teman-teman bisa berkenalan dengan hewan herbivora, omnivora, dan karnivora. Sentuh setiap gambar hewan untuk mendengarkan dongengnya.',
-      'Meong! Ayo, teman-teman, kita bermain bersama! Ada banyak tebak-tebakan seru yang harus dijawab. Selesaikan semua misinya dan kumpulkan bintang sebanyak-banyaknya, ya!',
+      'Cuit, cuit, cuit! Ayo, teman-teman, kita bermain bersama! Ada banyak tebak-tebakan seru yang harus dijawab. Selesaikan semua misinya dan kumpulkan bintang sebanyak-banyaknya, ya!',
     ],
   },
   hewan: {
@@ -397,7 +400,7 @@ const CERITA = {
     teks: [
       'Horeee! Kita sudah menyelesaikan semua misi petualangan di Taman Ceria!',
       'Wah, seru sekali ya! Kita sudah belajar banyak hal dan berhasil mengumpulkan banyak bintang. ⭐',
-      'Tapi, petualangan kita belum selesai, lho! Yuk, main lagi dan kumpulkan bintang sebanyak-banyaknya! Ayo, teman-teman, kita cari bintang lebih banyak lagi! 🌟🐱',
+      'Tapi, petualangan kita belum selesai, lho! Yuk, main lagi dan kumpulkan bintang sebanyak-banyaknya! Ayo, teman-teman, kita cari bintang lebih banyak lagi! 🌟🐦',
     ],
   },
 };

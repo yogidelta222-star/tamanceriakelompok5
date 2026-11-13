@@ -1,11 +1,11 @@
 # 🌈 Taman Ceria — Belajar Sambil Bermain
 
-Website belajar untuk anak PAUD, dipandu **Cuking si Kucing** 🐱 yang berbicara dalam Bahasa Indonesia.
+Website belajar untuk anak PAUD, dipandu **Kiku si Burung Biru** 🐦 yang berbicara dalam Bahasa Indonesia.
 
 ## Cara membuka
 
 Klik dua kali **`index.html`**. Website langsung jalan di browser apa pun, tanpa internet.
-Suara Cuking memakai rekaman bawaan di folder `suara/`, jadi folder itu harus selalu ikut disalin.
+Suara Kiku memakai rekaman bawaan di folder `suara/`, jadi folder itu harus selalu ikut disalin.
 
 ## Isi permainan
 

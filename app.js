@@ -94,7 +94,7 @@
     },
 
     // Diucapkan per kalimat: rekaman bawaan bila ada, kalau tidak suara browser Bahasa Indonesia.
-    // Tanpa keduanya Cuking diam, daripada dibacakan dengan logat bahasa lain.
+    // Tanpa keduanya Kiku diam, daripada dibacakan dengan logat bahasa lain.
     // gaya: 'senang' (memuji), 'lembut' (saat salah), atau biasa — hanya berlaku untuk suara browser
     bicara(ucap, opsi = {}) {
       const { tulis = ucap, selesai, gaya } = opsi;
@@ -365,22 +365,46 @@
     window.scrollTo(0, 0);
   }
 
+  // Video pembuka (Kiku terbang ke Taman Ceria). Diputar setelah tombol ditekan agar suaranya boleh berbunyi.
+  function layarVideoPembuka(lanjut) {
+    Suara.diam();
+    document.body.insertAdjacentHTML('beforeend', `
+      <div class="video-pembuka" id="videoPembuka">
+        <video src="video/pembuka.mp4" poster="video/pembuka.jpg" playsinline autoplay preload="auto"></video>
+        <button class="btn-kecil btn-lewati" id="btnLewati">Lewati ⏭</button>
+      </div>`);
+    const latar = $('#videoPembuka');
+    const video = latar.querySelector('video');
+    let beres = false;
+    const selesai = () => {
+      if (beres) return;
+      beres = true;
+      video.pause();
+      latar.remove();
+      lanjut();
+    };
+    video.addEventListener('ended', selesai);
+    video.addEventListener('error', selesai);
+    $('#btnLewati').addEventListener('click', () => { Sfx.pop(); selesai(); });
+    video.play().catch(() => { video.muted = true; video.play().catch(selesai); });
+  }
+
   function layarMulai() {
     tampil(`
       <section class="mulai">
         <h1>Taman Ceria</h1>
         <p class="sub">Belajar sambil bermain!</p>
-        <div class="parade">${['🐶', '🍎', '🚂', '🎨', '🔺', '🍌'].map((e, i) => `<span style="--i:${i}">${e}</span>`).join('')}</div>
+        <div class="parade">${['🐮', '🐰', '🐔', '🐱', '🦁', '🐘'].map((e, i) => `<span style="--i:${i}">${e}</span>`).join('')}</div>
         <button class="btn-besar btn-main" id="btnMulai">▶ Ayo Main!</button>
       </section>`, false);
-    tampilGelembung('Meong! Aku Cuking 🐱 Tekan tombol hijau ya!');
+    tampilGelembung('Cuit! Aku Kiku 🐦 Tekan tombol hijau ya!');
     $('#btnMulai').addEventListener('click', () => {
       Sfx.siap();
       Sfx.benar();
-      layarCerita('pembukaan', () => layarMenu());
+      layarVideoPembuka(() => layarCerita('pembukaan', () => layarMenu()));
       setTimeout(() => {
         if (!('speechSynthesis' in window)) pesan('🔇 Browser ini belum mendukung suara. Coba pakai Google Chrome atau Microsoft Edge.');
-        else if (!Suara.adaRekaman && !Suara.adaIndonesia) pesan('🔇 Suara Bahasa Indonesia belum tersedia di browser ini. Buka website dengan Google Chrome atau Microsoft Edge (tersambung internet) agar Cuking bisa bicara.');
+        else if (!Suara.adaRekaman && !Suara.adaIndonesia) pesan('🔇 Suara Bahasa Indonesia belum tersedia di browser ini. Buka website dengan Google Chrome atau Microsoft Edge (tersambung internet) agar Kiku bisa bicara.');
       }, 1800);
     });
   }
@@ -402,7 +426,7 @@
   // Cerita yang sudah pernah dibuka (dipakai untuk menampilkan penutup sekali saja)
   const ceritaDilihat = simpan.ambil('tc_cerita', {}) || {};
 
-  // Layar cerita: narasinya selalu dibacakan utuh oleh Cuking sebelum masuk pos, juga untuk pembukaan & penutup
+  // Layar cerita: narasinya selalu dibacakan utuh oleh Kiku sebelum masuk pos, juga untuk pembukaan & penutup
   function layarCerita(id, lanjut) {
     main = null;
     const c = CERITA[id];
@@ -910,7 +934,7 @@
         </div>
       </div>`);
     const latar = $('#panelDongeng');
-    // Suara hewan aslinya dulu (bila ada), lalu Cuking membacakan dongeng.
+    // Suara hewan aslinya dulu (bila ada), lalu Kiku membacakan dongeng.
     // Dongeng yang sudah berisi tiruan bunyi tidak diawali suara hewan, karena bunyinya diputar di tengah cerita.
     const adaBunyiDiCerita = pecahKalimat(d.teks).some((k) => BUNYI_KALIMAT[k]);
     const baca = (lalu) => Suara.bunyi(adaBunyiDiCerita ? null : bunyi, () => Suara.bicara(d.teks, { tulis: `📖 Dongeng ${d.tokoh}`, selesai: lalu }));
@@ -953,7 +977,7 @@
       } : undefined;
       bukaDongeng(HEWAN.find((x) => x.nama === b.dataset.hewan), rayakan);
     }));
-    Suara.bicara('Ayo kenalan! Sentuh gambarnya, nanti Cuking ceritakan dongengnya.', { tulis: 'Ayo kenalan! Sentuh gambarnya ya 👆' });
+    Suara.bicara('Ayo kenalan! Sentuh gambarnya, nanti Kiku ceritakan dongengnya.', { tulis: 'Ayo kenalan! Sentuh gambarnya ya 👆' });
   }
 
   // ================= PENGATURAN SUARA (untuk guru / orang tua) =================
@@ -963,7 +987,7 @@
   function isiPilihanSuara() {
     if (!pilihSuara) return;
     const indo = Suara.semua.filter(apakahIndo).sort((a, b) => nilaiSuara(b) - nilaiSuara(a));
-    const opsiRekaman = Suara.adaRekaman ? '<option value="rekaman">Cuking · rekaman bawaan ⭐ (tanpa internet)</option>' : '';
+    const opsiRekaman = Suara.adaRekaman ? '<option value="rekaman">Kiku · rekaman bawaan ⭐ (tanpa internet)</option>' : '';
     pilihSuara.innerHTML = opsiRekaman + indo.map((v) => `<option value="${v.voiceURI}">Suara browser: ${namaSuara(v)}</option>`).join('')
       || '<option value="">Belum ada suara Bahasa Indonesia</option>';
     pilihSuara.disabled = !Suara.adaRekaman && !indo.length;
@@ -971,9 +995,9 @@
     $('#aturNada').disabled = Suara.pakaiRekaman();
     const adaAlami = indo.some((v) => nilaiSuara(v) >= 4);
     $('#tipsSuara').textContent = Suara.pakaiRekaman()
-      ? '✅ Cuking memakai rekaman suara Bahasa Indonesia bawaan, jadi bisa bicara di semua browser, juga tanpa internet. Nada suara hanya bisa diatur untuk suara browser.'
+      ? '✅ Kiku memakai rekaman suara Bahasa Indonesia bawaan, jadi bisa bicara di semua browser, juga tanpa internet. Nada suara hanya bisa diatur untuk suara browser.'
       : !indo.length
-        ? '⚠️ Browser ini belum punya suara Bahasa Indonesia, jadi Cuking tidak bisa bicara. Buka website dengan Google Chrome atau Microsoft Edge yang tersambung internet.'
+        ? '⚠️ Browser ini belum punya suara Bahasa Indonesia, jadi Kiku tidak bisa bicara. Buka website dengan Google Chrome atau Microsoft Edge yang tersambung internet.'
         : adaAlami
           ? '✅ Suara yang paling alami sudah tersedia. Pilih yang bertanda ⭐.'
           : '💡 Suara yang paling alami ada di Microsoft Edge, yaitu suara Gadis (perempuan) atau Ardi (laki-laki).';
@@ -999,7 +1023,7 @@
   $('#aturKecepatan').addEventListener('input', (e) => { Suara.atur.rate = +e.target.value; simpanAtur(); });
   $('#aturNada').addEventListener('input', (e) => { Suara.atur.pitch = +e.target.value; simpanAtur(); });
   $('#btnCoba').addEventListener('click', () => {
-    Suara.bicara('Meong! Halo teman! Aku Cuking. Ayo kita belajar sambil bermain!', { tulis: 'Meong! Halo teman, aku Cuking 🐱', gaya: 'senang' });
+    Suara.bicara('Cuit, cuit, cuit! Halo teman! Aku Kiku. Ayo kita belajar sambil bermain!', { tulis: 'Cuit! Halo teman, aku Kiku 🐦', gaya: 'senang' });
   });
   $('#btnReset').addEventListener('click', () => {
     Suara.atur = { voiceURI: null, rate: 0.95, pitch: 1.1 };
@@ -1030,7 +1054,7 @@
     else if ('speechSynthesis' in window) speechSynthesis.cancel();
   });
 
-  // Ketuk Cuking untuk mengulang ucapan terakhir
+  // Ketuk Kiku untuk mengulang ucapan terakhir
   $('#maskotBadan').addEventListener('click', () => {
     if (sibuk() || !Suara.terakhir) return;
     Sfx.pilih();

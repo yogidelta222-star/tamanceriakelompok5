@@ -12,3 +12,6 @@ tools/.elevenlabs-key
 suara-hewan/_pilihan/
 tools/periksa-suara.json
 tools/ulang-suara.json
+
+# Alat bantu Python lokal (perekaman & pemeriksaan suara)
+.venv/
