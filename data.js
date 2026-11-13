@@ -325,11 +325,11 @@ const CERITA = {
     ikon: '🌈', judul: 'Selamat Datang di Taman Ceria', sub: 'Pembukaan', tombol: '▶ Mulai Petualangan',
     teks: [
       'Halo, teman-teman! Selamat datang di Taman Ceria! 🌻',
-      'Wah, di taman ini ada banyak sekali hewan yang menarik, lho! Ada sapi, kelinci, singa, harimau, ayam, beruang, dan masih banyak lagi.',
+      'Wah, di taman ini ada banyak sekali hewan yang menarik, lho! Ada sapi, kelinci, singa, harimau, ayam, monyet, dan masih banyak lagi.',
       'Tahukah teman-teman? Setiap hewan memiliki makanan yang berbeda. Ada hewan yang suka makan tumbuhan, ada yang makan daging, dan ada juga yang makan tumbuhan serta hewan lainnya.',
       'Nah, hari ini kita akan berpetualang untuk mengenal tiga kelompok hewan, yaitu herbivora, karnivora, dan omnivora.',
-      'Kita akan mendengarkan cerita, menebak nama hewan, mencocokkan makanan, dan menyelesaikan berbagai permainan seru!',
-      'Yuk, teman-teman! Siapkan semangat kalian. Mari kita mulai petualangan mengenal dunia hewan di Taman Ceria! 🐰🦁🐻',
+      'Kita akan mendengarkan cerita, menebak nama hewan, dan menyelesaikan berbagai permainan seru!',
+      'Yuk, teman-teman! Siapkan semangat kalian. Mari kita mulai petualangan mengenal dunia hewan di Taman Ceria! 🐰🦁🐵',
     ],
   },
   belajar: {
