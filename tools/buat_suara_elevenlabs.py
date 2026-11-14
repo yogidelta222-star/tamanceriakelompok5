@@ -29,7 +29,13 @@ import imageio_ffmpeg
 
 # ---- Pengaturan suara (isi sesuai pilihan di ElevenLabs) ----
 # Suara pilihan: "Velora - Warm, Youthful & Conversational"
-SUARA_ID = 'TrU3igk19A4aIUi2GAA2'
+SUARA_ID = 'TrU3igk19A4aIUi2GAA2'   # Kiku (Velora)
+# Suara tokoh lain; kalimatnya di kalimat.json diberi awalan "tokoh|"
+SUARA_TOKOH = {
+    'lili': 'd15jrIAARvF899pDoC6T',   # Kak Ceria - Cute Kids Storyteller
+    'leo': 'THv4P0RGwO160U4WGB6c',    # Akbar - deep, slightly raspy
+    'bubu': '8py0rPdIK626Y4I858QV',   # Alvar - Warm, Clear & Natural
+}
 MODEL = 'eleven_v3'      # atau 'eleven_multilingual_v2' (lebih stabil untuk kalimat sangat pendek)
 # Eleven v3: stability 0.0 = Creative, 0.5 = Natural (dipakai saat uji coba), 1.0 = Robust
 PENGATURAN = {'stability': 0.5, 'similarity_boost': 0.75, 'use_speaker_boost': True}
@@ -55,8 +61,10 @@ AWALAN = ''   # diisi '[Indonesian accent] ' oleh --logat; tidak ikut diucapkan
 
 
 def rekam(kalimat: str, kunci: str) -> bytes:
-    url = f'https://api.elevenlabs.io/v1/text-to-speech/{SUARA_ID}?output_format=mp3_44100_128'
-    badan = json.dumps({'text': AWALAN + kalimat, 'model_id': MODEL, 'language_code': 'id', 'voice_settings': PENGATURAN}).encode()
+    tokoh, _, teks = kalimat.partition('|') if '|' in kalimat else ('', '', kalimat)
+    suara = SUARA_TOKOH.get(tokoh, SUARA_ID)
+    url = f'https://api.elevenlabs.io/v1/text-to-speech/{suara}?output_format=mp3_44100_128'
+    badan = json.dumps({'text': AWALAN + teks, 'model_id': MODEL, 'language_code': 'id', 'voice_settings': PENGATURAN}).encode()
     req = urllib.request.Request(url, data=badan, method='POST',
                                  headers={'xi-api-key': kunci, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg'})
     for coba in range(6):

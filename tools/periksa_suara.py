@@ -113,9 +113,10 @@ def utama():
                 kata[i].append(w.word)
         for (k, potong, ujung, mulai, akhir), ks in zip(isi, kata):
             dengar = ''.join(ks).strip()
-            skor = difflib.SequenceMatcher(None, rata(k), rata(dengar)).ratio()
+            teks = k.split('|', 1)[1] if '|' in k else k   # buang awalan nama tokoh
+            skor = difflib.SequenceMatcher(None, rata(teks), rata(dengar)).ratio()
             durasi = akhir - mulai
-            laju = len(rata(k)) / max(durasi, 0.1)
+            laju = len(rata(teks)) / max(durasi, 0.1)
             alasan = []
             if skor < 0.8 and not rawan(k):
                 alasan.append(f'kata tidak cocok ({skor:.0%})')

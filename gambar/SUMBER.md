@@ -34,23 +34,6 @@ Terima kasih kepada para fotografer berikut.
 | `hewan/rusa.webp` | [rusa](https://unsplash.com/photos/brown-deer-on-white-background-BKZawJTA5t4) | Jeremy Perkins |
 | `hewan/kanguru.webp` | [kanguru](https://unsplash.com/photos/a-kangaroo-standing-in-a-field-with-trees-in-the-background-N9wvdQCLvo4) | Vincent Böhme |
 | `hewan/kuda-nil.webp` | [kuda nil](https://unsplash.com/photos/a-hippopotamus-standing-on-a-dirt-ground-next-to-a-body-of-water-vmbH3vXxPZ0) | Danny Rienecker |
-| `buah/apel.webp` | [apel](https://unsplash.com/photos/red-apple-on-white-background-rxN2MRdFJVg) | Amit Lahav |
-| `buah/pisang.webp` | [pisang](https://unsplash.com/photos/yellow-banana-on-white-background-Kl3467edwsE) | Mockup Graphics |
-| `buah/jeruk.webp` | [jeruk](https://unsplash.com/photos/orange-fruit-on-white-surface-ZBXPPacUsVs) | Mockup Graphics |
-| `buah/anggur.webp` | [anggur](https://commons.wikimedia.org/wiki/File:USDA_Eat_Healthy_Food_Group_Gallery_serving_size_medium_bunch_purple_grapes.jpg) (Wikimedia Commons, domain publik) | U.S. Department of Agriculture |
-| `buah/semangka.webp` | [semangka](https://unsplash.com/photos/sliced-watermelon-on-white-background-13PBliWTDng) | Mockup Graphics |
-| `buah/stroberi.webp` | [stroberi](https://unsplash.com/photos/a-close-up-of-a-strawberry-on-a-white-background-y7jUXGIVwSI) | William Warby |
-| `buah/nanas.webp` | [nanas](https://unsplash.com/photos/pineapple-on-white-surface-Cr9hZrpC1Oc) | Julien Pianetti |
-| `buah/mangga.webp` | [mangga](https://unsplash.com/photos/a-yellow-and-green-mango-rests-on-a-white-plate--BlMSgsWxf8) | Monaz Nazary |
-| `buah/ceri.webp` | [ceri](https://unsplash.com/photos/a-couple-of-cherries-sitting-on-top-of-each-other-BYkcASsP_Ic) | Julita Jerominiak |
-| `buah/pir.webp` | [pir](https://unsplash.com/photos/green-pear-fruit-bLPjs4Kw9JU) | Moritz Kindler |
-| `buah/lemon.webp` | [lemon](https://unsplash.com/photos/a-single-yellow-lemon-on-a-blue-background-RLH9IZPyriE) | mirukser |
-| `buah/alpukat.webp` | [alpukat](https://unsplash.com/photos/an-avocado-cut-in-half-on-a-white-surface-gcfeUzFW2i0) | John Vid |
-| `buah/melon.webp` | [melon](https://unsplash.com/photos/a-whole-and-a-half-cantaloupe-on-a-green-background-oynbjFRAb-0) | nilufar nattaq |
-| `buah/kiwi.webp` | [kiwi](https://unsplash.com/photos/a-kiwi-cut-in-half-on-a-white-surface-Zaj2mlKhtmA) | Kostiantyn Vierkieiev |
-| `buah/persik.webp` | [persik](https://unsplash.com/photos/ripe-peach-fruit-rqABly7c9j0) | charlesdeluvio |
-| `buah/bluberi.webp` | [bluberi](https://unsplash.com/photos/a-pile-of-blueberries-sitting-on-top-of-a-white-napkin-EcvOqmvhHs8) | Antony Hyson Seltran |
-| `buah/tomat.webp` | [tomat](https://unsplash.com/photos/red-tomato-on-white-table--rqGn8cverg) | Ritesh Tamrakar |
 | `hewan/bebek.webp` | [bebek](https://unsplash.com/photos/a-white-duck-standing-on-a-wooden-walkway-jdvzE0Fkcm0) | engin akyurt |
 | `hewan/kambing.webp` | [kambing](https://unsplash.com/photos/a-white-goat-standing-on-a-wooden-platform-ftlkViNWWKo) | Robert Schwarz |
 | `hewan/singa.webp` | [singa](https://unsplash.com/photos/a-majestic-male-lion-walks-across-a-grassy-savanna-2OME-KI5IYU) | Andreas Vonlanthen |
@@ -66,15 +49,8 @@ Terima kasih kepada para fotografer berikut.
 | `hewan/burung-beo.webp` | [burung beo](https://commons.wikimedia.org/wiki/File:Scarlet_Macaw_Phoenix_Zoo_Mar23_A7R_04528.jpg) (Wikimedia Commons, CC BY-SA 4.0) | Timothy A. Gonsalves |
 | `hewan/landak.webp` | [landak](https://unsplash.com/photos/hedgehog-on-white-sand-during-daytime-mGQ5-MTqRbQ) | Arif Hidayat |
 | `hewan/gurita.webp` | [gurita](https://unsplash.com/photos/an-octopus-is-hanging-upside-down-in-a-tank-v-Cf5LcLtkg) | Anya Chernykh |
-| `buah/kelapa.webp` | [kelapa](https://unsplash.com/photos/a-half-eaten-coconut-sitting-on-top-of-a-white-table-Y4JLPY9mzQA) | Michele Wales |
-| `huruf/cicak.webp` | [cicak](https://unsplash.com/photos/a-green-gecko-with-red-spots-on-a-tree-branch-6K87GPeS2eo) | Manuel Weber |
-| `huruf/elang.webp` | [elang](https://unsplash.com/photos/a-bald-eagle-perched-on-top-of-a-bare-tree-E5uihiw1jE4) | Brandon Stoll |
-| `huruf/foto.webp` | [foto](https://unsplash.com/photos/black-and-silver-camera-on-white-textile-nhlmpJakuMU) | Alessia C_Jpg |
-| `huruf/mobil.webp` | [mobil](https://unsplash.com/photos/red-porsche-911-on-white-background-ugkB_S2_O5s) | Jake |
-| `huruf/quran.webp` | [quran](https://unsplash.com/photos/quran-book-7blIFp0kFP4) | Ashkan Forouzani |
-| `huruf/rumah.webp` | [rumah](https://unsplash.com/photos/small-house-with-blue-roof-in-dry-field-OXiGHDwz_iE) | jeff wu |
-| `huruf/vas.webp` | [vas](https://unsplash.com/photos/photography-of-blue-ceramic-vase-against-white-background-l0ah3UBLppo) | 五玄土 ORIENTO |
-| `huruf/wortel.webp` | [wortel](https://unsplash.com/photos/two-orange-carrots-6PG3k3_SRHU) | Marcos Ramírez |
-| `huruf/obeng.webp` | [obeng](https://unsplash.com/photos/red-and-silver-screw-driver-lH-UZuoG-aY) | Steve A Johnson |
-| `huruf/bola.webp` | [bola](https://unsplash.com/photos/white-and-black-soccer-ball-on-grass-field-dKCKiC0BQtU) | Wesley Tingey |
-| `huruf/topi.webp` | [topi](https://unsplash.com/photos/brown-hat-on-brown-wooden-table-ntMy5GrSmtE) | Portuguese Gravity |
+| `hewan/babi.webp` | [babi](https://commons.wikimedia.org/wiki/File:Contre-jour_photograph_of_a_standing_piglet_at_sunset_with_colorful_sky_in_Don_Det_Laos.jpg) (Wikimedia Commons, CC BY-SA 4.0) | Basile Morin |
+| `hewan/serigala.webp` | [serigala](https://commons.wikimedia.org/wiki/File:File-Black_and_grey_wolf_(female_from_Druid_pack,_%22Half_Black%22)_standing_in_road_near_Lamar_River_bridge;-Jim_Peaco;-December_31_(180f55cf-0103-415f-b916-835c7d8f7f91).jpg) (Wikimedia Commons, domain publik) | NPS/Jim Peaco |
+| `hewan/elang.webp` | [elang](https://commons.wikimedia.org/wiki/File:Golden_Eagle_2_(51192287753).jpg) (Wikimedia Commons, domain publik) | BLMUtah |
+| `latar/*.webp`, `tokoh/*.webp` | Latar adegan 3D serta Lili, Leo, dan Bubu, dibuat dengan ElevenLabs Image (Seedream), paket berbayar | dibuat untuk Taman Ceria |
+| `kiku.webp`, `ikon/*` | Kiku si burung biru, dari video pemilik proyek | pemilik proyek |

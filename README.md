@@ -1,27 +1,24 @@
 # 🌈 Taman Ceria — Belajar Sambil Bermain
 
-Website belajar untuk anak PAUD, dipandu **Kiku si Burung Biru** 🐦 yang berbicara dalam Bahasa Indonesia.
+Website belajar untuk anak PAUD, untuk mengenal hewan herbivora, karnivora, dan omnivora bersama **Kiku si Burung Biru** 🐦 dan tiga sahabatnya.
 
 ## Cara membuka
 
 Klik dua kali **`index.html`**. Website langsung jalan di browser apa pun, tanpa internet.
 Suara Kiku memakai rekaman bawaan di folder `suara/`, jadi folder itu harus selalu ikut disalin.
 
-## Isi permainan
+## Alur petualangan
 
-| Permainan | Isi |
-|---|---|
-| 🐶 Tebak Hewan | nama, bunyi, ciri, tempat hidup, besar/kecil, "mana yang bukan hewan" |
-| 🍎 Tebak Buah | nama, ciri, warna, "mana yang bukan buah" |
-| 🎨 Tebak Warna | nama warna, "apa warna stroberi?" |
-| 🔺 Tebak Bentuk | 8 bentuk dan contoh bendanya |
-| 🔤 Tebak Huruf | huruf A–Z dan huruf depan kata |
-| 🧮 Ayo Berhitung | menghitung, lebih banyak/sedikit, penjumlahan sederhana |
-| 🚂 Urutkan Angka | kereta angka, roket hitung mundur, angka yang hilang |
-| 📖 Kenalan Yuk | galeri hewan, buah, angka, warna, bentuk, huruf |
+1. **Pembuka**: Kiku si burung terbang ke dahan pohon lalu menyapa.
+2. **Kenalan**: Kiku memperkenalkan Lili si Kelinci, Leo si Singa, dan Bubu si Beruang.
+3. **Dongeng Tiga Sahabat**: pintu ajaib, lalu padang rumput (herbivora), hutan (karnivora), dan kebun buah (omnivora).
+4. **Game 1 – Mengenal Makanan Hewan** (Lili): pilih makanan kesukaan hewan.
+5. **Game 2 – Ayo Kelompokkan Hewan** (Leo): tarik 15 hewan ke kotak herbivora, karnivora, atau omnivora.
+6. **Game 3 – Aku Sudah Pintar** (Bubu): kuis pilihan A, B, C.
+7. **Penutup** (Kiku).
 
-Setiap ronde berisi 5 soal acak. Soal yang baru saja muncul tidak langsung diulang.
-Jumlah soal per ronde bisa diubah di `app.js` (cari `total: 5`).
+Setiap tokoh punya suara dan warna tulisan sendiri: Kiku merah, Lili pink, Leo oranye, Bubu cokelat.
+Isi cerita dan permainan ada di **`data.js`**.
 
 ## Menambah atau mengubah materi
 
@@ -29,10 +26,11 @@ Jumlah soal per ronde bisa diubah di `app.js` (cari `total: 5`).
 2. Buat rekaman suara untuk kalimat yang baru (butuh internet dan Python + Node.js):
 
 ```bash
-pip install edge-tts
 node tools/daftar-kalimat.js
-python tools/buat_suara.py
+python tools/buat_suara_elevenlabs.py --logat
 ```
+
+Suara direkam dengan ElevenLabs (API key di `tools/.elevenlabs-key`, tidak ikut diunggah).
 
 Rekaman lama tidak dibuat ulang, jadi prosesnya cepat. Kalimat yang belum punya rekaman
 tetap diucapkan memakai suara Bahasa Indonesia dari browser (Chrome/Edge) bila tersedia.

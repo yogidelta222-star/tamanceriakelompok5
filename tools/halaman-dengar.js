@@ -16,11 +16,11 @@ const akar = path.join(__dirname, '..');
 const konteks = { window: {} };
 vm.createContext(konteks);
 vm.runInContext(
-  fs.readFileSync(path.join(akar, 'data.js'), 'utf8') + '\n;Object.assign(this, { CERITA, BUNYI_HEWAN });',
+  fs.readFileSync(path.join(akar, 'data.js'), 'utf8') + '\n;Object.assign(this, { ADEGAN, BUNYI_HEWAN });',
   konteks,
 );
 vm.runInContext(fs.readFileSync(path.join(akar, 'suara', 'daftar.js'), 'utf8'), konteks);
-const { CERITA, BUNYI_HEWAN } = konteks;
+const { ADEGAN, BUNYI_HEWAN } = konteks;
 const KLIP = konteks.window.KLIP_SUARA;
 const periksa = JSON.parse(fs.readFileSync(path.join(__dirname, 'periksa-suara.json'), 'utf8'));
 
@@ -37,14 +37,14 @@ const klip = (k) => {
 const hanya = process.argv[2] ? JSON.parse(fs.readFileSync(process.argv[2], 'utf8')) : null;
 const pilihan = {};
 const folderPilihan = path.join(akar, 'suara-hewan', '_pilihan');
-if (!hanya && fs.existsSync(folderPilihan)) {
+if (fs.existsSync(folderPilihan)) {
   fs.readdirSync(folderPilihan).filter((f) => /-\d+\.mp3$/.test(f)).sort().forEach((f) => {
     const nama = f.replace(/-\d+\.mp3$/, '');
     (pilihan[nama] = pilihan[nama] || []).push(`../../suara-hewan/_pilihan/${f}`);
   });
 }
 
-const narasi = [...new Set(Object.values(CERITA).flatMap((c) => pecahKalimat(c.teks.join(' '))))];
+const narasi = [...new Set(Object.values(ADEGAN).flatMap((a) => a.ucapan.flatMap((u) => pecahKalimat(u.t).map((k) => (u.s === 'kiku' ? k : `${u.s}|${k}`)))))];
 const dipakai = new Set(narasi);
 const ambil = (saring) => Object.entries(periksa)
   .filter(([k, v]) => !dipakai.has(k) && saring(k, v))

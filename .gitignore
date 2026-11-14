@@ -15,3 +15,6 @@ tools/ulang-suara.json
 
 # Alat bantu Python lokal (perekaman & pemeriksaan suara)
 .venv/
+
+# Bahan mentah gambar/video 3D dari ElevenLabs (yang dipakai disalin ke gambar/)
+bahan-3d/

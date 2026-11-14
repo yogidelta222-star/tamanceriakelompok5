@@ -630,15 +630,164 @@ button:focus-visible { outline: 5px solid var(--ungu); outline-offset: 4px; }
   .dongeng-judul { font-size: 20px; }
 }
 
-/* ---------- Video pembuka ---------- */
-.video-pembuka {
-  position: fixed; inset: 0; z-index: 90; display: grid; place-items: center;
-  background: linear-gradient(#74cbff, #bfe9ff);
+/* ---------- Tokoh yang berbicara: warna tulisan sesuai naskah ---------- */
+.gelembung { color: var(--warna-tokoh, var(--teks)); }
+.maskot .maskot-badan img { border-radius: 50%; }
+.maskot:not([data-tokoh="kiku"]) .maskot-badan img { background: #fff; padding: 4px; box-shadow: 0 0 0 4px var(--warna-tokoh); }
+
+/* ---------- Bilah langkah perjalanan ---------- */
+.langkah { list-style: none; display: flex; justify-content: center; gap: 4px; margin: 0 auto 12px; flex-wrap: wrap; }
+.langkah li {
+  display: flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px;
+  background: rgba(255, 255, 255, .55); font-size: 13px; color: #5c4d7a;
 }
-.video-pembuka video { width: 100%; height: 100%; object-fit: contain; }
-.btn-lewati {
-  position: absolute; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom));
-  background: rgba(255, 255, 255, .92); font-size: 18px; min-height: 48px; padding: 10px 18px;
+.langkah li span { font-family: var(--emoji); }
+.langkah li.lewat { background: #d3f9d8; color: #2b8a3e; }
+.langkah li.aktif { background: var(--ungu); color: #fff; box-shadow: var(--bayang); }
+
+/* ---------- Adegan cerita ---------- */
+.adegan { max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+.judul-adegan { text-align: center; }
+.judul-adegan span {
+  display: inline-block; padding: 6px 22px; border-radius: 999px; background: #fff; color: var(--ungu);
+  font-size: clamp(18px, 3.4vw, 26px); box-shadow: var(--bayang); border: 3px solid #e5dbff;
+}
+.panggung {
+  position: relative; width: min(100%, calc(50vh * 16 / 9)); margin: 0 auto; aspect-ratio: 16 / 9; overflow: hidden;
+  border-radius: var(--radius); border: 5px solid #fff; box-shadow: var(--bayang);
+  background-size: cover; background-position: center bottom; background-color: #bfe9ff;
+}
+.aktor { position: absolute; bottom: 5%; user-select: none; -webkit-user-drag: none; }
+.aktor img, img.aktor { display: block; width: 100%; height: auto; filter: drop-shadow(0 6px 4px rgba(0, 0, 0, .25)); }
+.aktor.bicara { animation: lompat .9s ease-in-out infinite; }
+
+/* Kiku terbang dari kiri lalu hinggap di dahan pohon besar (latar hutan 3D) */
+.aktor.kiku { width: 13%; left: 41%; bottom: 63%; transform-origin: bottom center; }
+.aktor.kiku.terbang { animation: kiku-terbang 2.6s ease-out both; }
+@keyframes kiku-terbang {
+  0% { left: -16%; bottom: 82%; transform: rotate(-8deg); }
+  35% { bottom: 68%; transform: rotate(6deg); }
+  70% { left: 33%; bottom: 72%; transform: rotate(-6deg); }
+  100% { left: 41%; bottom: 63%; transform: rotate(0); }
+}
+
+/* Video 3D pembuka (Kiku terbang ke dahan) menutupi seluruh panggung */
+.video-adegan { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* Lili, Leo, Bubu & hewan: posisi, ukuran, dan bayangan di tanah mengikuti tata letak adegan */
+.aktor.sahabat, .aktor.hewan { left: var(--x); bottom: var(--b, 3%); width: var(--lebar, 13%); }
+.aktor.sahabat::before, .aktor.hewan::before {
+  content: ''; position: absolute; left: 12%; right: 12%; bottom: 3%; height: 9%; z-index: -1;
+  background: radial-gradient(closest-side, rgba(20, 40, 10, .38), transparent); pointer-events: none;
+}
+.aktor.sahabat { opacity: 0; transform: translateY(30%) scale(.6); transition: opacity .5s, transform .5s; }
+.aktor.sahabat.tampak { opacity: 1; transform: none; }
+.aktor.sahabat.muncul { animation: muncul .7s cubic-bezier(.3, 1.6, .5, 1); }
+.aktor.sahabat.bicara { animation: lompat .9s ease-in-out infinite; }
+.aktor.sahabat span, .aktor.hewan span {
+  position: absolute; left: 50%; bottom: 0; transform: translate(-50%, 45%); white-space: nowrap;
+  padding: 1px 10px; border-radius: 999px; font-size: clamp(10px, 1.5vw, 14px); font-weight: 700; text-transform: capitalize;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .15);
+}
+.aktor.sahabat span { background: var(--w); color: #fff; }
+.aktor.hewan span { background: rgba(255, 255, 255, .95); color: var(--teks); }
+
+/* Hewan di adegan: bisa disentuh untuk mendengar suara & namanya; bergerak pelan agar tidak kaku */
+.aktor.hewan { padding: 0; background: none; border: 0; cursor: pointer; animation: muncul .6s backwards; animation-delay: calc(var(--i) * .15s + .3s); }
+.aktor.hewan img { animation: napas 3.2s ease-in-out infinite; animation-delay: calc(var(--i) * -.7s); transform-origin: bottom center; }
+@keyframes napas { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.015, .985); } }
+.aktor.hewan.loncat { animation: lompat .5s; }
+
+/* Pintu ajaib: latar berganti ke pintu terbuka, papan tulisan muncul, lalu tiga sahabat masuk */
+.latar-buka { position: absolute; inset: 0; background-size: cover; background-position: center bottom; opacity: 0; transition: opacity 1.2s; }
+.panggung.buka-pintu .latar-buka { opacity: 1; }
+.pintu-ajaib { position: absolute; left: 29%; top: 46%; width: 15%; height: 30%; }
+.papan-pintu {
+  position: absolute; left: 50%; bottom: 104%; transform: translateX(-50%) scale(0); width: max-content; max-width: 46vw;
+  background: #fff9db; border: 4px solid #f08c00; border-radius: 16px; padding: 6px 14px;
+  font-size: clamp(11px, 1.9vw, 18px); font-weight: 700; text-align: center; color: #8a4b08;
+  transition: transform .5s cubic-bezier(.3, 1.6, .5, 1) .6s;
+}
+.panggung.buka-pintu .papan-pintu { transform: translateX(-50%) scale(1); }
+.panggung.masuk-pintu .aktor.sahabat { transition: left 1.6s ease-in, transform 1.6s ease-in, opacity 1.6s ease-in; left: 31%; transform: scale(.3) translateY(-60%); opacity: 0; }
+
+.teks-adegan {
+  background: rgba(255, 255, 255, .92); border-radius: 22px; padding: 12px; box-shadow: var(--bayang);
+  max-height: 24vh; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; scroll-behavior: smooth;
+}
+.teks-adegan:empty { display: none; }
+.ucapan { display: flex; align-items: flex-start; gap: 10px; opacity: .45; transition: opacity .3s; }
+.ucapan.kini { opacity: 1; }
+.ucapan .wajah {
+  flex: none; width: clamp(38px, 6vw, 52px); aspect-ratio: 1; object-fit: contain; border-radius: 50%;
+  background: #fff; border: 3px solid var(--w); padding: 2px;
+}
+.isi-ucapan {
+  flex: 1; min-width: 0; background: #fff; border-radius: 4px 18px 18px 18px; padding: 8px 14px;
+  border: 2px solid color-mix(in srgb, var(--w) 35%, #fff);
+}
+.ucapan.kini .isi-ucapan { box-shadow: 0 4px 0 color-mix(in srgb, var(--w) 25%, transparent); animation: pop .35s; }
+.isi-ucapan b {
+  display: inline-block; margin-bottom: 2px; padding: 0 10px; border-radius: 999px;
+  background: var(--w); color: #fff; font-size: clamp(12px, 2vw, 15px);
+}
+.isi-ucapan p { font-size: clamp(16px, 2.5vw, 20px); font-weight: 600; line-height: 1.45; color: var(--w); }
+.adegan .aksi { margin-top: 0; }
+
+/* Layar pembuka game */
+.tokoh-besar { width: clamp(110px, 26vw, 170px); height: auto; filter: drop-shadow(0 8px 6px rgba(0, 0, 0, .2)); animation: melayang 3s ease-in-out infinite; }
+.pembuka-game .cerita-teks p { color: var(--w); }
+
+/* ---------- Permainan ---------- */
+.tanya-teks { font-size: clamp(20px, 4vw, 30px); font-weight: 700; text-align: center; color: #fff; text-shadow: 0 3px 0 rgba(59, 42, 90, .35); }
+.pilihan-makanan, .pilihan-abc { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 720px; }
+.kartu.makanan .emoji { font-size: clamp(48px, 10vw, 80px); }
+.kartu.makanan .label, .kartu.abc .nama-abc { font-size: clamp(15px, 2.6vw, 21px); font-weight: 700; text-transform: capitalize; }
+.kartu.makanan { flex-direction: column; gap: 4px; }
+.kartu.makanan .label { position: static; opacity: 1; transform: none; background: none; color: var(--teks); padding: 0; }
+.kartu.benar { border-color: #40c057; background: #ebfbee; }
+.kartu.abc { flex-direction: column; gap: 6px; border-top: 8px solid var(--k); }
+.huruf-abc {
+  display: grid; place-items: center; width: clamp(40px, 8vw, 58px); aspect-ratio: 1; border-radius: 50%;
+  background: var(--k); color: #fff; font-size: clamp(22px, 4.4vw, 32px); font-weight: 700;
+}
+
+/* Game 2: kotak kelompok + kolam hewan */
+.game-kelompok { max-width: 1000px; margin: 0 auto; }
+.kotak-kelompok { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 10px; }
+.kotak {
+  background: #fff; border-radius: 20px; border: 4px solid var(--k); padding: 8px; min-height: 140px;
+  box-shadow: var(--bayang); cursor: pointer; transition: transform .15s, background .15s;
+}
+.kotak.sasaran { transform: scale(1.04); background: #fff9db; }
+.kotak.pas { animation: bump .5s; }
+.kotak-judul { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 2px 6px; color: var(--k); font-size: clamp(16px, 2.8vw, 22px); font-weight: 700; text-align: center; }
+.kotak-judul span { font-family: var(--emoji); }
+.kotak-judul small { flex-basis: 100%; font-size: clamp(11px, 1.8vw, 14px); color: #5c4d7a; font-weight: 600; }
+.kotak-isi { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-top: 6px; }
+.kotak-isi .mini { width: clamp(34px, 7vw, 56px); height: auto; animation: muncul .4s; }
+.kolam-hewan { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
+.kartu-hewan {
+  background: #fff; border: 4px solid #fff; border-radius: 18px; padding: 6px; box-shadow: var(--bayang);
+  display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: grab; touch-action: none;
+}
+.kartu-hewan img { width: 100%; height: auto; pointer-events: none; }
+.kartu-hewan span { font-size: 14px; font-weight: 700; text-transform: capitalize; }
+.kartu-hewan.dipilih { border-color: var(--kuning); animation: sinar 1s ease-in-out infinite; }
+.kartu-hewan.diseret { opacity: .3; }
+.bayang-seret { position: fixed; z-index: 70; pointer-events: none; transform: translate(-50%, -50%) scale(1.1) rotate(-4deg); opacity: .95; }
+
+@media (max-width: 640px) {
+  .panggung { border-width: 3px; border-radius: 18px; }
+  .aktor.sahabat span, .aktor.hewan span { padding: 0 5px; font-size: 9px; }
+  .ucapan { gap: 6px; }
+  .isi-ucapan { padding: 6px 10px; }
+  .kotak { min-height: 110px; padding: 6px 4px; }
+  .kolam-hewan { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+  .kartu-hewan { padding: 3px; border-radius: 12px; border-width: 3px; }
+  .kartu-hewan span { font-size: 11px; }
+  .langkah li b { display: none; }
+  .langkah li { padding: 4px 8px; }
 }
 
 /* ---------- Animasi ---------- */
