@@ -63,6 +63,49 @@
   // Kalimat yang belum punya rekaman, untuk diperiksa saat pengembangan
   const kalimatTanpaRekaman = window.kalimatTanpaRekaman = new Set();
 
+  // ================= PEMUTAR SUARA BERSAMA =================
+  // Browser HP (terutama browser mini di dalam WhatsApp/Instagram/Facebook dan Safari iPhone) hanya
+  // mengizinkan pemutar suara yang pertama kali diputar tepat saat layar disentuh. Bila tiap kalimat
+  // memakai pemutar baru, kalimat-kalimat berikutnya diblokir: narasi berhenti di tengah atau berganti
+  // suara robot. Karena itu SEMUA rekaman memakai satu pemutar yang "dibuka kuncinya" pada sentuhan
+  // pertama, lalu dipakai berulang-ulang.
+  const HENING = 'data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YZABAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA';
+  const Pemutar = {
+    el: new Audio(),
+    giliran: 0,
+    terbuka: false,
+    buka() {
+      if (this.terbuka) return;
+      this.terbuka = true;
+      const e = this.el;
+      Musik.siapkan();
+      // Jangan ganggu rekaman yang sedang diputar
+      if (e.src && !e.paused && !e.ended) return;
+      e.preload = 'auto';
+      e.src = HENING;
+      // Hanya dianggap gagal bila browser benar-benar menolak (bukan karena langsung diganti rekaman lain)
+      e.play().catch((err) => { if (err && err.name === 'NotAllowedError') this.terbuka = false; });
+    },
+    // Memutar satu berkas; panggilan baru menggantikan yang lama (callback lama diabaikan)
+    putar(url, { rate = 1, onplaying, onended, onerror } = {}) {
+      const tok = ++this.giliran;
+      const e = this.el;
+      const sah = (fn) => (...x) => { if (tok === this.giliran && fn) fn(...x); };
+      e.onplaying = sah((...x) => { e.playbackRate = rate; if (onplaying) onplaying(...x); });
+      e.onended = sah(onended);
+      e.onerror = sah(onerror);
+      e.defaultPlaybackRate = rate;
+      e.playbackRate = rate;
+      e.src = url;
+      e.play().catch((err) => { if (!err || err.name !== 'AbortError') sah(onerror)(err); });
+      return {
+        el: e,
+        pause: () => { if (tok === this.giliran) e.pause(); },
+      };
+    },
+  };
+  ['pointerdown', 'touchend', 'click', 'keydown'].forEach((ev) => document.addEventListener(ev, () => Pemutar.buka(), { capture: true, passive: true }));
+
   const Suara = {
     aktif: simpan.ambil('tc_suara', true),
     atur: Object.assign({ voiceURI: null, rate: 0.95, pitch: 1.1 }, simpan.ambil('tc_atur_suara', {})),
@@ -152,21 +195,23 @@
           if (klip) {
             const [berkas, selesaiDetik, mulaiDetik] = Array.isArray(klip) ? klip : [klip, null];
             // Hening di awal & akhir rekaman dilewati (detik mulai dari daftar.js bila ada)
-            const a = new Audio(`suara/${berkas}#t=${mulaiDetik ?? AWAL_KLIP}`);
-            a.playbackRate = cepat;
-            a.onended = lanjutkan;
-            if (selesaiDetik) {
-              a.onplaying = () => {
-                clearTimeout(potong);
-                // Rekaman tanpa hening di ujung dibiarkan habis sendiri: suara perangkat keluar sedikit
-                // terlambat, jadi kalau dihentikan dengan timer, suku kata terakhir bisa ikut terpotong
-                if (!a.duration || a.duration - selesaiDetik < 0.1) return;
-                potong = setTimeout(() => { a.pause(); lanjutkan(); }, (Math.max(0, selesaiDetik - a.currentTime) * 1000 + 150) / cepat);
-              };
-            }
-            a.onerror = () => this.ucapkanBrowser(k, f, id, lanjutkan);
+            let a = null;
+            const saatMain = () => {
+              if (!selesaiDetik) return;
+              clearTimeout(potong);
+              const el = a.el;
+              // Rekaman tanpa hening di ujung dibiarkan habis sendiri: suara perangkat keluar sedikit
+              // terlambat, jadi kalau dihentikan dengan timer, suku kata terakhir bisa ikut terpotong
+              if (!el.duration || el.duration - selesaiDetik < 0.1) return;
+              potong = setTimeout(() => { a.pause(); lanjutkan(); }, (Math.max(0, selesaiDetik - el.currentTime) * 1000 + 150) / cepat);
+            };
+            a = Pemutar.putar(`suara/${berkas}#t=${mulaiDetik ?? AWAL_KLIP}`, {
+              rate: cepat,
+              onplaying: saatMain,
+              onended: lanjutkan,
+              onerror: () => this.ucapkanBrowser(k, f, id, lanjutkan),
+            });
             this.audio = a;
-            a.play().catch(() => this.ucapkanBrowser(k, f, id, lanjutkan));
           } else {
             if (rekaman) kalimatTanpaRekaman.add(kunciKlip(k, tokoh));
             this.ucapkanBrowser(k, f, id, lanjutkan);
@@ -176,11 +221,7 @@
         const asli = BUNYI_KALIMAT[k];
         if (asli) {
           jaga = setTimeout(lanjutkan, 5000);
-          const b = new Audio(asli);
-          b.onended = lanjutkan;
-          b.onerror = ucapkan;
-          this.audio = b;
-          b.play().catch(ucapkan);
+          this.audio = Pemutar.putar(asli, { onended: lanjutkan, onerror: ucapkan });
         } else ucapkan();
       };
       putar(0);
@@ -213,11 +254,7 @@
       };
       if (!this.aktif || !berkas) { setTimeout(akhiri, 50); return; }
       setTimeout(akhiri, 5000);
-      const a = new Audio(berkas);
-      a.onended = akhiri;
-      a.onerror = akhiri;
-      this.audio = a;
-      a.play().catch(akhiri);
+      this.audio = Pemutar.putar(berkas, { onended: akhiri, onerror: akhiri });
     },
 
     hentikan() {
@@ -378,17 +415,26 @@
   // musik/latar.mp3 diputar pelan selama cerita; bila berkasnya belum ada, diam saja
   const Musik = {
     audio: null,
+    main: false,
+    siapkan() {
+      if (this.audio) return;
+      this.audio = new Audio('musik/latar.mp3');
+      this.audio.loop = true;
+      this.audio.volume = 0.16;
+      this.audio.onerror = () => { this.audio = null; };
+      // Diputar sekejap lalu dijeda saat sentuhan pertama agar boleh diputar lagi nanti
+      this.audio.muted = true;
+      this.audio.play().then(() => { if (!this.main) this.audio.pause(); this.audio.muted = false; }).catch(() => { this.audio.muted = false; });
+    },
     nyala() {
       if (!Suara.aktif) return;
-      if (!this.audio) {
-        this.audio = new Audio('musik/latar.mp3');
-        this.audio.loop = true;
-        this.audio.volume = 0.16;
-        this.audio.onerror = () => { this.audio = null; };
-      }
+      this.siapkan();
+      if (!this.audio) return;
+      this.main = true;
+      this.audio.muted = false;
       this.audio.play().catch(() => {});
     },
-    mati() { if (this.audio) this.audio.pause(); },
+    mati() { this.main = false; if (this.audio) this.audio.pause(); },
   };
 
   // ================= NAVIGASI =================
