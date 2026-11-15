@@ -33,4 +33,8 @@ Hewan berikut tidak punya rekaman asli yang cocok di Wikimedia Commons, jadi sua
 | `lumba-lumba.mp3` | Siulan dan klik lumba-lumba |
 | `anak-ayam.mp3` | Ciapan anak ayam (untuk "Ciap, ciap!" di dongeng ayam) |
 | `bebek.mp3` | Kwek-kwek bebek (menggantikan rekaman Wikimedia yang kurang jelas) |
-
+| `serigala.mp3` | [Wolf howls.ogg](https://commons.wikimedia.org/wiki/File:Wolf_howls.ogg) | tidak disebutkan | Public domain |
+| `elang.mp3` | [Buteo jamaicensis - Red-tailed Hawk XC71575.mp3](https://commons.wikimedia.org/wiki/File:Buteo_jamaicensis_-_Red-tailed_Hawk_XC71575.mp3) | Jonathon Jongsma | CC BY-SA 3.0 |
+| `beruang.mp3` | [Bear growl.ogg](https://commons.wikimedia.org/wiki/File:Bear_growl.ogg) | Shizhao | CC BY 3.0 |
+| `tupai.mp3` | [Tamiasciurus douglasii.ogg](https://commons.wikimedia.org/wiki/File:Tamiasciurus_douglasii.ogg) | Parande at English Wikipedia | CC BY-SA 3.0 |
+| `buaya.mp3` | [27alligator2bellow.ogg](https://commons.wikimedia.org/wiki/File:27alligator2bellow.ogg) | tidak disebutkan | Public domain |

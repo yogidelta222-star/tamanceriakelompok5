@@ -37,7 +37,8 @@ const klip = (k) => {
 const hanya = process.argv[2] ? JSON.parse(fs.readFileSync(process.argv[2], 'utf8')) : null;
 const pilihan = {};
 const folderPilihan = path.join(akar, 'suara-hewan', '_pilihan');
-if (fs.existsSync(folderPilihan)) {
+// Pilihan suara hewan hanya ditampilkan di halaman lengkap (bukan saat memeriksa daftar kalimat tertentu)
+if (!hanya && fs.existsSync(folderPilihan)) {
   fs.readdirSync(folderPilihan).filter((f) => /-\d+\.mp3$/.test(f)).sort().forEach((f) => {
     const nama = f.replace(/-\d+\.mp3$/, '');
     (pilihan[nama] = pilihan[nama] || []).push(`../../suara-hewan/_pilihan/${f}`);
@@ -54,16 +55,16 @@ const ambil = (saring) => Object.entries(periksa)
 const ditandai = ambil((k, v) => v.alasan && v.alasan.length);
 const huruf = ambil((k) => /huruf|^[A-Z][a-z]{0,2}[.!,]/.test(k));
 const pendek = ambil((k) => k.length <= 14);
-const bunyi = ambil((k) => /guk|meong|mooo|cit|cuit|kwek|mbe|Cuking/i.test(k));
+const bunyi = ambil((k) => /guk|meong|mooo|cit|cuit|kwek|mbe|Kiku/i.test(k));
 
 const bagian = hanya ? [
-  { id: 'baru', judul: '📖 Kalimat dongeng baru', ket: 'Perhatikan logatnya: harus terdengar Indonesia, bukan Malaysia.', isi: hanya.map((k) => { const c = klip(k); return c && { ...c, cat: (periksa[k]?.alasan || []).join(', ') }; }) },
+  { id: 'baru', judul: '📖 Kalimat baru', ket: 'Perhatikan logatnya: harus terdengar Indonesia, bukan Malaysia. Kalimat bertanda merah paling atas sebaiknya didengar lebih teliti.', isi: [...hanya].sort((a, b) => (periksa[b]?.alasan?.length ? 1 : 0) - (periksa[a]?.alasan?.length ? 1 : 0)).map((k) => { const c = klip(k); return c && { ...c, cat: (periksa[k]?.alasan || []).join(', ') }; }) },
 ].map((b) => ({ ...b, isi: b.isi.filter(Boolean) })) : [
   { id: 'ditandai', judul: '⚠️ Masih ditandai pemeriksa otomatis', ket: 'Sudah direkam ulang otomatis, tapi mesin masih ragu. Mohon didengar baik-baik.', isi: ditandai.map((k) => ({ ...klip(k), cat: periksa[k].alasan.join(', ') })) },
   { id: 'narasi', judul: '📖 Narasi cerita', ket: 'Kalimat narasi di layar cerita tiap pos.', isi: narasi.map(klip) },
   { id: 'huruf', judul: '🔤 Huruf', ket: 'Pastikan huruf diucapkan benar (a, be, ce, de, ... eks, ye, zet).', isi: huruf.map(klip) },
   { id: 'pendek', judul: '🔢 Kalimat sangat pendek', ket: 'Angka dan kata singkat. Pastikan jelas, tidak terpotong.', isi: pendek.map(klip) },
-  { id: 'bunyi', judul: '🐱 Bunyi hewan dalam kalimat & nama Cuking', ket: '', isi: bunyi.map(klip) },
+  { id: 'bunyi', judul: '🐦 Bunyi hewan dalam kalimat & nama Kiku', ket: '', isi: bunyi.map(klip) },
 ].map((b) => ({ ...b, isi: b.isi.filter(Boolean) }));
 const asli = hanya ? [] : Object.entries(BUNYI_HEWAN).map(([nama, f]) => ({ k: nama, f: `../../${f}` }));
 
@@ -73,7 +74,7 @@ const html = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Periksa Suara Cuking</title>
+<title>Periksa Suara Taman Ceria</title>
 <style>
   :root { --latar: #f4f1fb; --kartu: #fff; --teks: #3b2a5a; --aksen: #7048e8; --hijau: #2b8a3e; --merah: #e03131; }
   * { box-sizing: border-box; }
@@ -105,7 +106,7 @@ const html = `<!doctype html>
 </head>
 <body>
 <main>
-  <h1>🐱 Periksa Suara Cuking</h1>
+  <h1>🐦 Periksa Suara Taman Ceria</h1>
   <p class="ket">Tekan ▶ untuk mendengar. Beri ✅ kalau sudah pas, ❌ kalau ada yang salah (salah ucap, terpotong, suara aneh).
   "Putar berurutan" memutar semua kalimat di bagian itu satu per satu; Anda cukup menekan ❌ saat mendengar yang salah.
   Setelah selesai, tekan <b>Salin hasil</b> di bawah lalu tempel di chat.</p>

@@ -512,6 +512,32 @@ button:focus-visible { outline: 5px solid var(--ungu); outline-offset: 4px; }
 .dongeng-teks p + p { margin-top: 10px; }
 .panel.dongeng .panel-aksi { flex: none; justify-content: center; }
 
+/* ---------- Kenalan Yuk (3 kelompok × 5 hewan) ---------- */
+.kenalan > .petunjuk-kecil { text-align: center; margin: 6px 0 14px; }
+.kenalan .judul-adegan { margin-bottom: 4px; }
+button.kategori-judul { width: 100%; background: none; border: 0; cursor: pointer; font-family: inherit; font-weight: 700; }
+button.kategori-judul:active { transform: scale(.98); }
+.kenalan .galeri .kartu .foto { pointer-events: none; }
+/* Hewan yang sudah dikenal diberi tanda centang */
+.kartu.dikenal::after {
+  content: '✓'; position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--k, #2f9e44); color: #fff; font-size: 16px; font-weight: 700;
+}
+.kenalan .aksi { margin-bottom: 16px; }
+.btn-main.ajak { box-shadow: 0 0 0 6px rgba(255, 212, 59, .8), var(--bayang); }
+.lencana-kelompok {
+  display: inline-block; padding: 2px 14px; border-radius: 999px; background: var(--k); color: #fff;
+  font-size: clamp(14px, 2.6vw, 17px); font-weight: 700;
+}
+.panel.dongeng { border-top: 8px solid var(--k, var(--ungu)); }
+.panel.dongeng .dongeng-judul { color: var(--k, var(--teks)); }
+
+/* Game 1: tebak hewan dari petunjuk */
+.gambar-tanya.misteri span { display: grid; place-items: center; width: clamp(90px, 20vw, 150px); height: clamp(90px, 20vw, 150px); font-size: .9em; }
+.pilihan-tebak { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 720px; }
+.kartu.tebak .label { opacity: 1; }
+.game .tanya-teks { max-width: 760px; margin: 0 auto; }
+
 /* ---------- Efek ---------- */
 #konfeti { position: fixed; inset: 0; pointer-events: none; z-index: 50; overflow: hidden; }
 .kf { position: absolute; top: -24px; width: 12px; height: 18px; border-radius: 3px; animation: jatuh linear forwards; }
@@ -564,6 +590,9 @@ button:focus-visible { outline: 5px solid var(--ungu); outline-offset: 4px; }
 }
 
 /* HP berlayar pendek: dipadatkan agar pilihan jawaban terlihat tanpa menggulir */
+@media (max-width: 640px) {
+  .gambar-tanya.misteri span { width: 78px; height: 78px; }
+}
 @media (max-width: 640px) and (max-height: 760px) {
   .progres { margin-bottom: 6px; }
   .progres span { font-size: 26px; }
@@ -698,18 +727,6 @@ button:focus-visible { outline: 5px solid var(--ungu); outline-offset: 4px; }
 @keyframes napas { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.015, .985); } }
 .aktor.hewan.loncat { animation: lompat .5s; }
 
-/* Pintu ajaib: latar berganti ke pintu terbuka, papan tulisan muncul, lalu tiga sahabat masuk */
-.latar-buka { position: absolute; inset: 0; background-size: cover; background-position: center bottom; opacity: 0; transition: opacity 1.2s; }
-.panggung.buka-pintu .latar-buka { opacity: 1; }
-.pintu-ajaib { position: absolute; left: 29%; top: 46%; width: 15%; height: 30%; }
-.papan-pintu {
-  position: absolute; left: 50%; bottom: 104%; transform: translateX(-50%) scale(0); width: max-content; max-width: 46vw;
-  background: #fff9db; border: 4px solid #f08c00; border-radius: 16px; padding: 6px 14px;
-  font-size: clamp(11px, 1.9vw, 18px); font-weight: 700; text-align: center; color: #8a4b08;
-  transition: transform .5s cubic-bezier(.3, 1.6, .5, 1) .6s;
-}
-.panggung.buka-pintu .papan-pintu { transform: translateX(-50%) scale(1); }
-.panggung.masuk-pintu .aktor.sahabat { transition: left 1.6s ease-in, transform 1.6s ease-in, opacity 1.6s ease-in; left: 31%; transform: scale(.3) translateY(-60%); opacity: 0; }
 
 .teks-adegan {
   background: rgba(255, 255, 255, .92); border-radius: 22px; padding: 12px; box-shadow: var(--bayang);
@@ -817,4 +834,92 @@ button:focus-visible { outline: 5px solid var(--ungu); outline-offset: 4px; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}
+
+/* ---------- Adegan pembuka & penutup: rapi di layar HP ---------- */
+/* Tombol "Dengar lagi" dan "Lanjut" sejajar dalam satu baris */
+.adegan .aksi { flex-wrap: nowrap; align-items: center; gap: 12px; }
+.adegan .aksi .btn-main { margin-top: 0; }
+@media (max-width: 640px) {
+  /* Gelembung mengikuti panjang kalimat (satu kalimat sekali tampil), minimal setinggi 2 baris */
+  .gelembung { font-size: 16px; line-height: 1.35; padding: 8px 14px; border-radius: 18px; min-height: calc(2 * 1.35em + 16px); }
+  .maskot-badan { width: 58px; }
+  .adegan { gap: 14px; }
+  .adegan .judul-adegan span { font-size: 17px; padding: 5px 16px; }
+  .adegan .aksi .btn-besar { padding: 14px 26px; font-size: 22px; }
+  .adegan .aksi .btn-kecil { padding: 12px 16px; font-size: 16px; white-space: nowrap; }
+}
+
+/* Teks pertanyaan di atas papan putih, agar tetap terbaca walau ada awan di belakangnya */
+.game .tanya-teks {
+  color: var(--ungu); text-shadow: none; background: rgba(255, 255, 255, .92);
+  padding: 8px 18px; border-radius: 18px; box-shadow: var(--bayang);
+}
+
+/* ---------- Menu utama: tombol fitur di atas, isinya di bawah ---------- */
+.menu-utama { max-width: 980px; margin: 0 auto; }
+.tab { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 16px; }
+.tab-btn {
+  position: relative; display: flex; align-items: center; gap: 8px;
+  background: #fff; border: 4px solid #fff; border-radius: 999px; padding: 8px 22px 8px 12px;
+  font-size: clamp(16px, 2.6vw, 22px); font-weight: 700; color: var(--teks); box-shadow: var(--bayang);
+  transition: transform .15s;
+}
+.tab-btn:hover { transform: translateY(-3px); }
+.tab-btn:active { transform: scale(.96); }
+.tab-btn span { font-size: 1.4em; line-height: 1; font-family: var(--emoji); }
+.tab-btn.aktif { background: var(--ungu); border-color: #9775fa; color: #fff; }
+.tab-btn.ajak { animation: sinar 1s ease-in-out infinite; }
+/* Permainan yang sudah selesai diberi tanda ✓ */
+.tab-btn.selesai::after {
+  content: '✓'; position: absolute; top: -8px; right: -6px; width: 24px; height: 24px; border-radius: 50%;
+  display: grid; place-items: center; background: #40c057; color: #fff; font-size: 14px; border: 2px solid #fff;
+}
+/* Tombol kelompok hewan berwarna sesuai kelompoknya */
+.tab-kelompok .tab-btn { color: var(--k); border-color: color-mix(in srgb, var(--k) 25%, #fff); }
+.tab-kelompok .tab-btn.aktif { background: var(--k); border-color: color-mix(in srgb, var(--k) 70%, #fff); color: #fff; }
+.isi-menu .kategori-hewan { margin-bottom: 8px; }
+.isi-menu .kategori-judul { margin-bottom: 10px; }
+.isi-menu > .petunjuk-kecil { text-align: center; }
+.isi-menu .pembuka-game { padding-top: 4px; }
+@media (max-width: 640px) {
+  .tab { gap: 8px; margin-bottom: 12px; }
+  .tab-btn { padding: 6px 14px 6px 8px; font-size: 15px; border-width: 3px; }
+  /* Menu utama: 3 tombol di baris atas, 2 di baris bawah, rata */
+  .tab-utama { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .tab-utama .tab-btn { grid-column: span 2; justify-content: center; flex-direction: column; gap: 2px; padding: 6px 4px; border-radius: 18px; font-size: 13px; line-height: 1.15; text-align: center; }
+  .tab-utama .tab-btn:nth-child(n+4) { grid-column: span 3; }
+  /* Tiga kelompok hewan selalu dalam satu baris */
+  .tab-kelompok { flex-wrap: nowrap; gap: 6px; }
+  .tab-kelompok .tab-btn { flex: 1 1 0; min-width: 0; justify-content: center; gap: 4px; padding: 6px 4px; font-size: 13px; }
+  .tab-kelompok .tab-btn span { font-size: 1.2em; }
+}
+/* Petunjuk di menu memakai warna gelap agar terbaca di atas latar langit */
+.isi-menu > .petunjuk-kecil { color: var(--ungu); text-shadow: none; font-size: clamp(14px, 2.4vw, 17px); }
+
+/* ---------- Kerapian akhir ---------- */
+/* Tulisan petunjuk selalu di tengah dan berwarna gelap agar terbaca di atas awan */
+.petunjuk-kecil { text-align: center; color: var(--ungu); text-shadow: none; }
+@media (max-width: 640px) {
+  /* Tiga tombol di jendela penjelasan hewan muat dalam satu baris */
+  .panel.dongeng .panel-aksi { flex-wrap: nowrap; gap: 6px; width: 100%; }
+  .panel.dongeng .panel-aksi .btn-kecil { flex: 1 1 0; min-width: 0; padding: 10px 6px; font-size: 14px; white-space: nowrap; }
+}
+/* Menu utama: laptop = satu baris; tablet = 3 + 2 dengan lebar sama */
+@media (min-width: 901px) {
+  .tab-utama .tab-btn { font-size: 18px; padding: 8px 18px 8px 10px; }
+}
+@media (min-width: 641px) and (max-width: 900px) {
+  .tab-utama { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); max-width: 640px; margin-left: auto; margin-right: auto; }
+  .tab-utama .tab-btn { grid-column: span 2; justify-content: center; font-size: 17px; padding: 8px 10px; }
+  .tab-utama .tab-btn:nth-child(n+4) { grid-column: span 3; }
+}
+/* Tombol "Dengar lagi" di samping tombol besar dibuat seimbang ukurannya */
+.aksi { align-items: center; }
+.aksi .btn-kecil { padding: 14px 24px; font-size: clamp(16px, 2vw, 20px); }
+.aksi .btn-main { margin-top: 0; }
+/* Kolam hewan (Game Kelompokkan): baris rata tengah, tidak ada sisa yang menggantung di kiri */
+@media (min-width: 641px) {
+  .kolam-hewan { display: flex; flex-wrap: wrap; justify-content: center; }
+  .kolam-hewan .kartu-hewan { flex: 0 0 calc((100% - 7 * 10px) / 8); min-width: 0; }
 }
