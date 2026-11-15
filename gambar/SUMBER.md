@@ -53,5 +53,5 @@ Terima kasih kepada para fotografer berikut.
 | `hewan/serigala.webp` | [serigala](https://commons.wikimedia.org/wiki/File:File-Black_and_grey_wolf_(female_from_Druid_pack,_%22Half_Black%22)_standing_in_road_near_Lamar_River_bridge;-Jim_Peaco;-December_31_(180f55cf-0103-415f-b916-835c7d8f7f91).jpg) (Wikimedia Commons, domain publik) | NPS/Jim Peaco |
 | `hewan/elang.webp` | [elang](https://commons.wikimedia.org/wiki/File:Golden_Eagle_2_(51192287753).jpg) (Wikimedia Commons, domain publik) | BLMUtah |
 | `hewan/tupai.webp` | [tupai](https://commons.wikimedia.org/wiki/File:Nut-eating_Technique_(2)_(6654485815).jpg) (Wikimedia Commons, CC BY 2.0) | Peter Trimming |
-| `latar/*.webp`, `tokoh/*.webp` | Latar adegan 3D serta Lili, Leo, dan Bubu, dibuat dengan ElevenLabs Image (Seedream), paket berbayar | dibuat untuk Taman Ceria |
+| `tokoh/*.webp` | Lili, Leo, dan Bubu (3D), dibuat dengan ElevenLabs Image (Seedream), paket berbayar | dibuat untuk Taman Ceria |
 | `kiku.webp`, `ikon/*` | Kiku si burung biru, dari video pemilik proyek | pemilik proyek |

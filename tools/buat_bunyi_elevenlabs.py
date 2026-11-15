@@ -24,15 +24,10 @@ FOLDER = AKAR / 'suara-hewan'
 PILIHAN = FOLDER / '_pilihan'
 FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
 
-# Hewan yang tidak ada rekaman aslinya di Wikimedia Commons
+# Hewan yang belum punya rekaman asli yang bagus (yang lama sudah dibuat: lumba-lumba, tikus, ular, anak-ayam, bebek)
 PERMINTAAN = {
-    'lumba-lumba': 'A dolphin clicking and whistling at the water surface, realistic nature recording, no music, no voice',
-    'tikus': 'A small house mouse squeaking several times, close up, realistic, no music, no voice',
-    'ular': 'A snake hissing slowly and steadily, close up, realistic, no music, no voice',
-    # Untuk "Ciap, ciap!" di dongeng ayam (lihat BUNYI_KALIMAT), bukan hewan tersendiri
-    'anak-ayam': 'Baby chicks peeping softly, close up, realistic farm recording, no music, no voice',
-    # Pengganti rekaman bebek Wikimedia yang kurang jelas
-    'bebek': 'A single domestic duck quacking clearly several times, quack quack quack, close up, realistic farm recording, no music, no voice',
+    'jerapah': 'A giraffe at a zoo making a low soft humming and gentle snorting sound, close up, realistic nature recording, no music, no voice',
+    'kelinci': 'A pet rabbit sniffing quickly and munching a crunchy carrot with small soft grunts, close up, realistic, no music, no voice',
 }
 
 

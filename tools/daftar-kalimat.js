@@ -18,10 +18,10 @@ const konteks = {};
 vm.createContext(konteks);
 vm.runInContext(
   fs.readFileSync(path.join(akar, 'data.js'), 'utf8') +
-    '\n;Object.assign(this, { HEWAN, ADEGAN, GAME, BUNYI_KALIMAT, KENALAN, KELOMPOK, MENU_AJAK });',
+    '\n;Object.assign(this, { HEWAN, ADEGAN, GAME, BUNYI_KALIMAT, KENALAN, KELOMPOK, MENU, PETA });',
   konteks,
 );
-const { HEWAN, ADEGAN, GAME, BUNYI_KALIMAT, KENALAN, KELOMPOK, MENU_AJAK } = konteks;
+const { HEWAN, ADEGAN, GAME, BUNYI_KALIMAT, KENALAN, KELOMPOK, MENU, PETA } = konteks;
 
 // Harus sama persis dengan pecahKalimat() di app.js
 const BUANG_EMOJI = /[\p{Extended_Pictographic}\u{FE0F}\u{200D}]/gu;
@@ -39,7 +39,9 @@ tambah('kiku', 'Cuit, cuit, cuit! Halo teman! Aku Kiku. Ayo kita belajar sambil 
 // ---------- Adegan cerita ----------
 Object.values(ADEGAN).forEach((a) => a.ucapan.forEach((u) => tambah(u.s, u.t)));
 // ---------- Kenalan Yuk ----------
-tambah('kiku', ...KENALAN.ajakan, KENALAN.semua, MENU_AJAK);
+tambah('kiku', ...KENALAN.ajakan, KENALAN.semua);
+// ---------- Peta Petualangan ----------
+tambah('kiku', PETA.semua, ...MENU.map(PETA.ajak), ...[1, 2, 3, 4, 5].map(PETA.belum));
 Object.values(KELOMPOK).forEach((k) => tambah('kiku', k.penjelasan));
 HEWAN.forEach((h) => tambah('kiku', h.penjelasan));
 

@@ -124,6 +124,8 @@ const BUNYI_HEWAN = {
   'beruang': 'suara-hewan/beruang.mp3',
   'elang': 'suara-hewan/elang.mp3',
   'serigala': 'suara-hewan/serigala.mp3',
+  'jerapah': 'suara-hewan/jerapah.mp3',
+  'kelinci': 'suara-hewan/kelinci.mp3',
 };
 
 // Tiruan bunyi diputar dengan rekaman aslinya (tulisannya tetap tampil)
@@ -131,10 +133,10 @@ const BUNYI_KALIMAT = {
   'Cuit, cuit, cuit!': 'suara-hewan/burung.mp3',
 };
 
-// ---------- Narasi Kiku ----------
+// ---------- Narasi Kiku (layar cerita pembukaan & penutup) ----------
 const ADEGAN = {
   pembuka: {
-    judul: 'Selamat Datang di Taman Ceria', latar: 'hutan', kikuTerbang: true,
+    judul: 'Selamat Datang di Taman Ceria', ikon: '🌈', sub: 'Pembukaan', tombol: '▶ Ayo Mulai!',
     ucapan: [
       { s: 'kiku', t: 'Halo, teman-teman! Selamat datang di Taman Ceria! 🌻' },
       { s: 'kiku', t: 'Wah, di taman ini ada banyak sekali hewan yang menarik, lho! Ada sapi, kelinci, singa, harimau, ayam, beruang, dan masih banyak lagi.' },
@@ -145,7 +147,7 @@ const ADEGAN = {
     ],
   },
   penutup: {
-    judul: 'Hore, Kita Berhasil!', latar: 'hutan', sahabat: true, kiku: true,
+    judul: 'Hore, Kita Berhasil!', ikon: '🎉', sub: 'Penutup',
     ucapan: [
       { s: 'kiku', t: 'Horeee! Kita sudah menyelesaikan semua misi petualangan di Taman Ceria!' },
       { s: 'kiku', t: 'Wah, seru sekali ya! Kita sudah belajar banyak hal dan berhasil mengumpulkan banyak bintang. ⭐' },
@@ -214,14 +216,21 @@ const GAME = {
 };
 
 // Menu utama: tinggal pilih fitur yang diinginkan. Penutup diputar setelah keempat permainan selesai.
+// Peta Petualangan (tampilan seperti versi awal): pos pertama tampil besar di atas, pos lain berupa ubin
 const MENU = [
-  { id: 'kenalan', ikon: '👋', nama: 'Kenalan Yuk' },
-  { id: 'tebak', ikon: '🔍', nama: 'Tebak Hewan' },
-  { id: 'makanan', ikon: '🥕', nama: 'Makanan Hewan' },
-  { id: 'kelompok', ikon: '🧺', nama: 'Kelompokkan' },
-  { id: 'kuis', ikon: '🏆', nama: 'Kuis' },
+  { id: 'kenalan', ikon: '📖', nama: 'Kenalan Yuk', warna: '#22b8cf',
+    ket: 'Dengarkan penjelasan hewan karnivora, omnivora, dan herbivora', contoh: '🦁 🐔 🐮' },
+  { id: 'tebak', ikon: '🔍', nama: 'Tebak Hewan', warna: '#ff8a5c' },
+  { id: 'makanan', ikon: '🥕', nama: 'Makanan Hewan', warna: '#51cf66' },
+  { id: 'kelompok', ikon: '🧺', nama: 'Kelompokkan Hewan', warna: '#cc5de8' },
+  { id: 'kuis', ikon: '🏆', nama: 'Kuis Hewan', warna: '#f59f00' },
 ];
-// Diucapkan Kiku saat kembali ke menu setelah selesai bermain
-const MENU_AJAK = 'Mau main apa lagi? Pilih tombolnya, ya!';
+// Ucapan Kiku di Peta Petualangan
+const ANGKA = ['nol', 'satu', 'dua', 'tiga', 'empat', 'lima'];
+const PETA = {
+  ajak: (m) => `Ayo lanjut ke ${m.nama}!`,
+  semua: 'Hore, semua pos sudah selesai! Sentuh bendera untuk melihat kejutannya!',
+  belum: (n) => `Selesaikan semua pos dulu, ya! Masih ada ${ANGKA[n]} pos lagi.`,
+};
 
 function besar(s) { return s.charAt(0).toUpperCase() + s.slice(1); }

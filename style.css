@@ -881,7 +881,7 @@ button.kategori-judul:active { transform: scale(.98); }
 .isi-menu .kategori-hewan { margin-bottom: 8px; }
 .isi-menu .kategori-judul { margin-bottom: 10px; }
 .isi-menu > .petunjuk-kecil { text-align: center; }
-.isi-menu .pembuka-game { padding-top: 4px; }
+.pembuka-game { padding-top: 4px; }
 @media (max-width: 640px) {
   .tab { gap: 8px; margin-bottom: 12px; }
   .tab-btn { padding: 6px 14px 6px 8px; font-size: 15px; border-width: 3px; }
@@ -926,26 +926,51 @@ button.kategori-judul:active { transform: scale(.98); }
 }
 /* Kartu pembuka permainan di menu: di HP dibuat ringkas agar tombol Mulai langsung terlihat */
 @media (max-width: 640px) {
-  .isi-menu .pembuka-game { padding: 12px 14px; gap: 6px; }
-  .isi-menu .tokoh-besar { width: 76px; }
-  .isi-menu .cerita-sub { font-size: 12px; }
-  .isi-menu .cerita-judul { font-size: 22px; }
-  .isi-menu .cerita-teks { gap: 6px; margin: 2px 0; }
-  .isi-menu .cerita-teks p { font-size: 14px; line-height: 1.4; }
-  .isi-menu .pembuka-game .aksi { margin-top: 4px; }
-  .isi-menu .pembuka-game .btn-besar { padding: 12px 30px; font-size: 22px; }
-  .isi-menu .pembuka-game .btn-kecil { padding: 11px 16px; font-size: 15px; }
+  .pembuka-game { padding: 12px 14px; gap: 6px; }
+  .pembuka-game .tokoh-besar { width: 76px; }
+  .pembuka-game .cerita-sub { font-size: 12px; }
+  .pembuka-game .cerita-judul { font-size: 22px; }
+  .pembuka-game .cerita-teks { gap: 6px; margin: 2px 0; }
+  .pembuka-game .cerita-teks p { font-size: 14px; line-height: 1.4; }
+  .pembuka-game .aksi { margin-top: 4px; }
+  .pembuka-game .btn-besar { padding: 12px 30px; font-size: 22px; }
+  .pembuka-game .btn-kecil { padding: 11px 16px; font-size: 15px; }
 }
 /* Ruang kosong di bawah halaman cukup secukupnya, agar tombol tidak jatuh di bawah layar */
 #layar { padding-bottom: 36px; }
 /* Layar pendek (laptop / tablet tidur): kartu pembuka permainan dan soal dibuat ringkas */
 @media (min-width: 641px) and (max-height: 900px) {
-  .isi-menu .pembuka-game { flex-direction: row; flex-wrap: wrap; justify-content: center; column-gap: 18px; padding: 14px 22px; }
-  .isi-menu .pembuka-game .tokoh-besar { width: 92px; }
-  .isi-menu .pembuka-game .cerita-sub { display: none; }
-  .isi-menu .pembuka-game .cerita-judul { font-size: 28px; }
-  .isi-menu .pembuka-game .cerita-teks, .isi-menu .pembuka-game .aksi { flex-basis: 100%; }
-  .isi-menu .pembuka-game .cerita-teks p { font-size: 17px; }
+  .pembuka-game { flex-direction: row; flex-wrap: wrap; justify-content: center; column-gap: 18px; padding: 14px 22px; }
+  .pembuka-game .tokoh-besar { width: 92px; }
+  .pembuka-game .cerita-sub { display: none; }
+  .pembuka-game .cerita-judul { font-size: 28px; }
+  .pembuka-game .cerita-teks, .pembuka-game .aksi { flex-basis: 100%; }
+  .pembuka-game .cerita-teks p { font-size: 17px; }
   .gambar-tanya .foto, .gambar-tanya.misteri span { width: 110px; height: 110px; }
   .progres { margin-bottom: 4px; }
+}
+
+/* Layar cerita: paragraf yang sedang dibacakan Kiku disorot */
+.cerita-teks p { transition: opacity .3s, transform .3s; }
+.cerita-teks:has(p.kini) p:not(.kini) { opacity: .55; }
+.cerita-teks p.kini { color: var(--w, #4a3b6b); transform: scale(1.02); }
+.pembuka-game { border-top: 8px solid var(--c, var(--ungu)); }
+/* Layar cerita (pembukaan & penutup) di HP: lebih ringkas agar tombol cepat terlihat */
+@media (max-width: 640px) {
+  .cerita:not(.pembuka-game) { padding: 16px 16px 18px; gap: 6px; }
+  .cerita:not(.pembuka-game) .cerita-ikon { font-size: 56px; }
+  .cerita:not(.pembuka-game) .cerita-judul { font-size: 24px; }
+  .cerita:not(.pembuka-game) .cerita-teks { gap: 6px; }
+  .cerita:not(.pembuka-game) .cerita-teks p { font-size: 15px; line-height: 1.4; }
+}
+/* Peta: 4 permainan + bendera penutup = 5 ubin, satu baris rapi di layar lebar */
+@media (min-width: 641px) {
+  .menu .tile { flex-basis: calc((100% - 4 * var(--g)) / 5); }
+  .menu .tile .ikon { font-size: clamp(40px, 6vw, 58px); }
+  .menu .tile .nama { font-size: clamp(14px, 1.8vw, 18px); }
+}
+@media (min-width: 641px) and (max-height: 900px) {
+  .menu .tile-utama { padding: 14px 28px; }
+  .menu .tile-utama .ikon { font-size: 90px; }
+  .menu .tile-utama .nama { font-size: 44px; }
 }

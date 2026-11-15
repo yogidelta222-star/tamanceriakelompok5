@@ -412,7 +412,7 @@
 
   function layarMulai() {
     Musik.mati();
-    menuTab = null;
+    diPeta = false;
     const pernah = simpan.ambil('tc_menu', false);
     tampil(`
       <section class="mulai">
@@ -420,7 +420,7 @@
         <p class="sub">Petualangan Mengenal Hewan Herbivora, Karnivora, dan Omnivora</p>
         <div class="parade">${['🐮', '🐰', '🦁', '🐻', '🐔', '🐘'].map((e, i) => `<span style="--i:${i}">${e}</span>`).join('')}</div>
         <button class="btn-besar btn-main" id="btnMulai">▶ Ayo Main!</button>
-        ${pernah ? '<button class="btn-kecil" id="btnKeMenu">📋 Langsung ke menu</button>' : ''}
+        ${pernah ? '<button class="btn-kecil" id="btnKeMenu">🗺️ Langsung ke peta</button>' : ''}
       </section>`, false);
     aturPembicara('kiku');
     tampilGelembung('Kiku: Cuit! Aku Kiku 🐦 Tekan tombol hijau ya!');
@@ -432,84 +432,81 @@
         if (!('speechSynthesis' in window) && !Suara.adaRekaman) pesan('🔇 Browser ini belum mendukung suara. Coba pakai Google Chrome atau Microsoft Edge.');
       }, 1800);
     };
-    $('#btnMulai').addEventListener('click', () => mulai(() => layarAdegan('pembuka', () => layarMenu('kenalan'))));
+    $('#btnMulai').addEventListener('click', () => mulai(() => layarCerita('pembuka', () => layarMenu())));
     const keMenu = $('#btnKeMenu');
-    if (keMenu) keMenu.addEventListener('click', () => mulai(() => layarMenu('kenalan')));
+    if (keMenu) keMenu.addEventListener('click', () => mulai(() => layarMenu()));
   }
 
-  // Permainan yang sudah selesai (diberi ✓ di menu). Penutup diputar saat keempatnya selesai.
-  const SEMUA_GAME = Object.keys(GAME);
-  const gameSelesai = new Set((simpan.ambil('tc_selesai', []) || []).filter((id) => GAME[id]));
+  // ================= POS PETUALANGAN =================
+  // Pos selesai disimpan di tc_selesai: Kenalan Yuk (setelah ke-15 hewan dikenal) dan keempat permainan.
+  // Penutup terbuka setelah semua pos selesai.
+  const gameSelesai = new Set((simpan.ambil('tc_selesai', []) || []).filter((id) => MENU.some((m) => m.id === id)));
   const MAIN_GAME = { tebak: (l) => gameTebak(l), makanan: (l) => gameMakanan(l), kelompok: (l) => gameKelompok(l), kuis: (l) => gameKuis(l) };
+  const sudahSelesai = (id) => gameSelesai.has(id);
+  const jumlahSelesai = () => MENU.filter((m) => sudahSelesai(m.id)).length;
+  const semuaSelesai = () => jumlahSelesai() === MENU.length;
+  const posBerikut = () => MENU.find((m) => !sudahSelesai(m.id));
+  function tandaiSelesai(id) {
+    if (sudahSelesai(id)) return false;
+    gameSelesai.add(id);
+    simpan.taruh('tc_selesai', [...gameSelesai]);
+    return true;
+  }
 
-  // langsung = pembukanya sudah tampil di menu, jadi permainan langsung dimulai
-  function mainkan(id, langsung = false) {
-    mulaiLangsung = langsung;
+  // Selesai bermain: kembali ke peta (penutup langsung diputar bila ini pos terakhir)
+  function mainkan(id) {
+    lewatiPembuka = true;
     MAIN_GAME[id](() => {
-      const baruLengkap = !gameSelesai.has(id) && gameSelesai.size === SEMUA_GAME.length - 1;
-      gameSelesai.add(id);
-      simpan.taruh('tc_selesai', [...gameSelesai]);
-      if (baruLengkap) return layarAdegan('penutup');
-      const berikut = SEMUA_GAME.find((x) => !gameSelesai.has(x));
-      layarMenu(berikut || 'kenalan', { sapa: true });
+      const baru = tandaiSelesai(id);
+      if (baru && semuaSelesai()) layarCerita('penutup');
+      else layarMenu();
     });
   }
 
-  // ================= ADEGAN CERITA =================
-  // Posisi bawaan tiga sahabat [kiri %, bawah %, lebar %]; tiap adegan bisa mengaturnya sendiri lewat "tata"
-  const POSISI_SAHABAT = { lili: [1, 3, 12], leo: [11, 3, 15], bubu: [24, 3, 12] };
-
-  function layarAdegan(id, lanjut) {
+  // ================= LAYAR CERITA (pembukaan & penutup) =================
+  // Kartu berisi judul dan paragraf narasi yang dibacakan Kiku kalimat demi kalimat
+  function layarCerita(id, lanjut) {
     main = null;
-    const a = ADEGAN[id];
+    const c = ADEGAN[id];
     const penutup = id === 'penutup';
-    const tata = a.tata || {};
-    // Makin ke belakang (bawah % lebih besar) makin di belakang tumpukan
-    const letak = ([x, b, w]) => `--x:${x}%;--b:${b}%;--lebar:${w}%;z-index:${60 - b}`;
-    const sahabat = ['lili', 'leo', 'bubu'].map((s) => `
-      <div class="aktor sahabat ${a.sahabat ? 'tampak' : ''}" data-tokoh="${s}" style="${letak(tata[s] || POSISI_SAHABAT[s])};--w:${TOKOH[s].warna}">
-        <img src="${TOKOH[s].gambar}" alt="${TOKOH[s].sebutan}" draggable="false"><span>${TOKOH[s].nama}</span>
-      </div>`).join('');
     tampil(`
-      <section class="adegan">
-        <h2 class="judul-adegan"><span>${a.judul}</span></h2>
-        <div class="panggung" id="panggung" style="background-image:url(gambar/latar/${a.latar}.webp)">
-          ${a.kikuTerbang ? '<video class="video-adegan" src="video/pembuka.mp4" muted playsinline preload="auto"></video>' : ''}
-          ${a.kiku ? '<img class="aktor kiku hinggap" src="gambar/kiku.webp" alt="Kiku" draggable="false">' : ''}
-          ${sahabat}
-        </div>
+      <section class="cerita ${penutup ? 'cerita-penutup' : ''}">
+        <div class="cerita-ikon">${c.ikon}</div>
+        <p class="cerita-sub">${c.sub}</p>
+        <h2 class="cerita-judul">${c.judul}</h2>
+        <div class="cerita-teks" style="--w:${TOKOH.kiku.warna}">${c.ucapan.map((u) => `<p>${u.t}</p>`).join('')}</div>
         <div class="aksi">
-          <button class="btn-kecil" id="btnUlangAdegan">🔊 Dengar lagi</button>
+          <button class="btn-kecil" id="btnUlangCerita">🔊 Dengar lagi</button>
           ${penutup
-            ? '<button class="btn-besar btn-oranye" id="btnUlangSemua">🔁 Main Lagi</button>'
-            : '<button class="btn-besar btn-main" id="btnLanjut">Lanjut ▶</button>'}
+            ? `<button class="btn-besar btn-oranye" id="btnUlangSemua">🔁 Main Lagi</button>
+               <button class="btn-besar btn-biru" id="btnPeta">🗺️ Lihat Peta</button>`
+            : `<button class="btn-besar btn-main" id="btnLanjut">${c.tombol || 'Lanjut ▶'}</button>`}
         </div>
-      </section>`);
+      </section>`, id !== 'pembuka');
     Musik.nyala();
-    const panggung = $('#panggung');
-    // Ucapan cukup tampil di gelembung Kiku di atas (kotak percakapan di bawah panggung dihapus)
-    const baris = (u) => {
-      $$('.aktor', panggung).forEach((x) => x.classList.toggle('bicara', x.dataset.tokoh === u.s));
-    };
-    const putar = () => {
-      putarUcapan(a.ucapan, { padaBaris: baris, selesai: () => $$('.aktor', panggung).forEach((x) => x.classList.remove('bicara')) });
-    };
-    // Video 3D: Kiku terbang lalu hinggap di dahan; gambar terakhirnya tetap tampil selama Kiku bercerita
-    const video = $('.video-adegan', panggung);
-    if (video) {
-      let mulai = false;
-      const cerita = () => { if (mulai) return; mulai = true; putar(); };
-      video.addEventListener('ended', cerita);
-      video.addEventListener('error', () => { video.remove(); panggung.insertAdjacentHTML('beforeend', '<img class="aktor kiku" src="gambar/kiku.webp" alt="Kiku" draggable="false">'); cerita(); });
-      video.play().catch(cerita);
-      nanti(cerita, 9000);
-    } else putar();
-    if (penutup) { Sfx.menang(); konfeti(); }
-
-    $('#btnUlangAdegan').addEventListener('click', () => { Sfx.pilih(); putar(); });
+    const ps = $$('.cerita-teks p', layar);
+    // Halaman ikut bergulir ke paragraf yang sedang dibacakan; di akhir, tombol lanjut ikut terlihat
+    const gulir = (el) => { if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); };
+    const baca = () => putarUcapan(c.ucapan, {
+      padaBaris: (u, i) => { ps.forEach((x, j) => x.classList.toggle('kini', j === i)); gulir(ps[i]); },
+      selesai: () => { ps.forEach((x) => x.classList.remove('kini')); gulir($('.cerita .aksi', layar)); },
+    });
+    baca();
+    $('#btnUlangCerita').addEventListener('click', () => { Sfx.pilih(); baca(); });
     if (penutup) {
-      // Main lagi: tanda ✓ permainan dihapus, kembali ke menu
-      $('#btnUlangSemua').addEventListener('click', () => { Sfx.pop(); Suara.diam(); gameSelesai.clear(); simpan.taruh('tc_selesai', []); layarMenu('kenalan'); });
+      Sfx.menang();
+      konfeti();
+      // Main lagi: semua tanda selesai dan hewan yang sudah dikenal dihapus, kembali ke peta
+      $('#btnUlangSemua').addEventListener('click', () => {
+        Sfx.pop();
+        Suara.diam();
+        gameSelesai.clear();
+        simpan.taruh('tc_selesai', []);
+        dikenal.clear();
+        simpan.taruh('tc_dikenal', []);
+        layarMenu();
+      });
+      $('#btnPeta').addEventListener('click', () => { Sfx.pop(); Suara.diam(); layarMenu(); });
     } else {
       $('#btnLanjut').addEventListener('click', () => { Sfx.pop(); Suara.diam(); lanjut(); });
     }
@@ -562,28 +559,78 @@
     baca();
   }
 
-  // ================= MENU UTAMA =================
-  // Tombol fitur di atas (seperti menu Hewan / Buah / Angka dulu); isinya tampil di bawah.
-  // Kenalan Yuk punya tombol kelompok Karnivora / Omnivora / Herbivora, masing-masing 5 hewan.
-  let menuTab = null;
-  let subKelompok = Object.keys(KELOMPOK)[0];
+  // ================= PETA PETUALANGAN =================
+  // Tampilan seperti versi awal: kartu besar Kenalan Yuk, ubin permainan bernomor, dan bendera penutup
+  let diPeta = false;
 
-  function layarMenu(tab = 'kenalan', { sapa = false, mulai = null, kelompok = null } = {}) {
+  function layarMenu() {
     main = null;
     Musik.mati();
-    const pindahTab = menuTab !== tab;
-    menuTab = tab;
-    if (kelompok) subKelompok = kelompok;
+    diPeta = true;
     simpan.taruh('tc_menu', true);
+    const selesai = jumlahSelesai();
+    const berikut = posBerikut();
+    const [utama, ...lain] = MENU;
+    const status = (m) => (sudahSelesai(m.id) ? 'selesai' : m === berikut ? 'berikut' : '');
+    const lencana = (m, i) => `<span class="pos-no">${sudahSelesai(m.id) ? '✓' : i + 1}</span>${m === berikut ? '<span class="pos-ajak">Ayo ke sini!</span>' : ''}`;
+    tampil(`
+      <section class="menu">
+        <div class="peta-kepala">
+          <h2 class="judul-sub">🗺️ Peta Petualangan</h2>
+          <div class="peta-progres" role="img" aria-label="${selesai} dari ${MENU.length} pos selesai">
+            <div class="peta-isi" style="width:${(selesai / MENU.length) * 100}%"></div>
+            <span>${selesai} / ${MENU.length} pos selesai</span>
+          </div>
+        </div>
+        <button class="tile-utama ${status(utama)}" data-id="${utama.id}" style="--c:${utama.warna}">
+          ${lencana(utama, 0)}
+          <span class="ikon">${utama.ikon}</span>
+          <span class="teks">
+            <span class="nama">${utama.nama}</span>
+            <span class="ket">${utama.ket}</span>
+            <span class="contoh">${utama.contoh}</span>
+          </span>
+          <span class="ajak">▶ Ayo mulai!</span>
+        </button>
+        <div class="grid-menu">
+          ${lain.map((m, i) => `
+            <button class="tile ${status(m)}" data-id="${m.id}" style="--c:${m.warna};--d:${0.15 + i * 0.08}s">
+              ${lencana(m, i + 1)}<span class="ikon">${m.ikon}</span><span class="nama">${m.nama}</span>
+            </button>`).join('')}
+          <button class="tile pos-akhir ${semuaSelesai() ? 'terbuka' : ''}" id="posAkhir" style="--d:${0.15 + lain.length * 0.08}s">
+            <span class="ikon">${semuaSelesai() ? '🎉' : '🏁'}</span><span class="nama">Hore, Kita Berhasil!</span>
+          </button>
+        </div>
+      </section>`, false);
+    $$('[data-id]', layar).forEach((b) => b.addEventListener('click', () => {
+      Sfx.pop();
+      Suara.diam();
+      const id = b.dataset.id;
+      if (id === 'kenalan') layarKenalan();
+      else layarPembukaGame(id, () => mainkan(id));
+    }));
+    $('#posAkhir').addEventListener('click', () => {
+      Sfx.pop();
+      if (semuaSelesai()) layarCerita('penutup');
+      else ucap('kiku', PETA.belum(MENU.length - jumlahSelesai()));
+    });
+    ucap('kiku', berikut ? PETA.ajak(berikut) : PETA.semua);
+  }
+
+  // ================= KENALAN YUK =================
+  // Tombol kelompok Karnivora / Omnivora / Herbivora, masing-masing 5 hewan; sentuh hewan → penjelasan
+  let subKelompok = Object.keys(KELOMPOK)[0];
+
+  function layarKenalan(kelompok = null) {
+    main = null;
+    Musik.mati();
+    const pertama = !kelompok;
+    if (kelompok) subKelompok = kelompok;
     const jumlah = () => HEWAN.filter((h) => dikenal.has(h.nama)).length;
-    const tombol = MENU.map((m) => `
-      <button class="tab-btn ${m.id === tab ? 'aktif' : ''} ${gameSelesai.has(m.id) ? 'selesai' : ''}" data-tab="${m.id}">
-        <span>${m.ikon}</span>${m.nama}
-      </button>`).join('');
-    let isi;
-    if (tab === 'kenalan') {
-      const k = KELOMPOK[subKelompok];
-      isi = `
+    const k = KELOMPOK[subKelompok];
+    tampil(`
+      <section class="belajar kenalan">
+        <h2 class="judul-adegan"><span>📖 ${KENALAN.judul}</span></h2>
         <div class="tab tab-kelompok">
           ${Object.entries(KELOMPOK).map(([kk, v]) => `<button class="tab-btn ${kk === subKelompok ? 'aktif' : ''}" data-k="${kk}" style="--k:${v.warna}"><span>${v.ikon}</span>${v.nama}</button>`).join('')}
         </div>
@@ -593,92 +640,70 @@
             ${HEWAN.filter((h) => h.kelompok === subKelompok).map((h) => `<button class="kartu ${dikenal.has(h.nama) ? 'dikenal' : ''}" data-hewan="${h.nama}">${fotoHTML(h)}<span class="label">${h.nama}</span></button>`).join('')}
           </div>
         </div>
-        <p class="petunjuk-kecil">Sentuh gambar hewan untuk mendengar penjelasannya 👆 <b id="hitungKenal"></b></p>`;
-    } else {
-      const g = GAME[tab];
-      const t = TOKOH[g.tokoh];
-      isi = `
-        <div class="cerita pembuka-game">
-          <img class="tokoh-besar" src="${t.gambar}" alt="${t.sebutan}" draggable="false">
-          <p class="cerita-sub">${t.sebutan}</p>
-          <h2 class="cerita-judul">${g.judul}</h2>
-          <div class="cerita-teks" style="--w:${t.warna}">${g.pembuka.map((x) => `<p>${x}</p>`).join('')}</div>
-          <div class="aksi">
-            <button class="btn-kecil" id="btnUlangPembuka">🔊 Dengar lagi</button>
-            <button class="btn-besar btn-main" id="btnMulaiGame">▶ Mulai</button>
-          </div>
-        </div>`;
-    }
-    tampil(`
-      <section class="menu-utama">
-        <div class="tab tab-utama">${tombol}</div>
-        <div class="isi-menu">${isi}</div>
+        <p class="petunjuk-kecil">Sentuh gambar hewan untuk mendengar penjelasannya 👆 <b id="hitungKenal"></b></p>
+        <div class="aksi"><button class="btn-besar btn-biru" id="btnKePeta">🗺️ Kembali ke Peta</button></div>
       </section>`);
-
-    $$('.tab-utama .tab-btn', layar).forEach((b) => b.addEventListener('click', () => {
-      if (b.dataset.tab === menuTab) return;
+    const perbarui = () => { $('#hitungKenal').textContent = `(${jumlah()}/${HEWAN.length} sudah dikenal)`; };
+    perbarui();
+    const jelaskanKelompok = () => { putaran++; ucap('kiku', KELOMPOK[subKelompok].penjelasan); };
+    if (pertama) putarUcapan(KENALAN.ajakan.map((t) => ({ s: 'kiku', t })));
+    else jelaskanKelompok();
+    $$('.tab-kelompok .tab-btn', layar).forEach((b) => b.addEventListener('click', () => {
+      if (b.dataset.k === subKelompok) return;
       Sfx.pop();
-      Suara.diam();
-      layarMenu(b.dataset.tab);
+      layarKenalan(b.dataset.k);
     }));
-
-    if (tab === 'kenalan') {
-      const perbarui = () => { $('#hitungKenal').textContent = `(${jumlah()}/${HEWAN.length} sudah dikenal)`; };
+    $('.kategori-judul', layar).addEventListener('click', () => { Sfx.pilih(); jelaskanKelompok(); });
+    $('#btnKePeta').addEventListener('click', () => { Sfx.pop(); Suara.diam(); layarMenu(); });
+    $$('.kartu', layar).forEach((b) => b.addEventListener('click', () => {
+      Sfx.pop();
+      putaran++;
+      b.classList.remove('loncat');
+      void b.offsetWidth;
+      b.classList.add('loncat');
+      const h = hewanDari(b.dataset.hewan);
+      dikenal.add(h.nama);
+      simpan.taruh('tc_dikenal', [...dikenal]);
+      b.classList.add('dikenal');
       perbarui();
-      const jelaskanKelompok = () => { putaran++; ucap('kiku', KELOMPOK[subKelompok].penjelasan); };
-      if (sapa) ucap('kiku', MENU_AJAK);
-      else if (pindahTab) putarUcapan(KENALAN.ajakan.map((t) => ({ s: 'kiku', t })));
-      else jelaskanKelompok();
-      $$('.tab-kelompok .tab-btn', layar).forEach((b) => b.addEventListener('click', () => {
-        if (b.dataset.k === subKelompok) return;
-        Sfx.pop();
-        layarMenu('kenalan', { kelompok: b.dataset.k });
-      }));
-      $('.kategori-judul', layar).addEventListener('click', () => { Sfx.pilih(); jelaskanKelompok(); });
-      $$('.kartu', layar).forEach((b) => b.addEventListener('click', () => {
-        Sfx.pop();
-        putaran++;
-        b.classList.remove('loncat');
-        void b.offsetWidth;
-        b.classList.add('loncat');
-        const h = hewanDari(b.dataset.hewan);
-        const sudahSemua = jumlah() === HEWAN.length;
-        dikenal.add(h.nama);
-        simpan.taruh('tc_dikenal', [...dikenal]);
-        b.classList.add('dikenal');
-        perbarui();
-        bukaPenjelasan(h, () => {
-          // Setelah ke-15 hewan dikenal: rayakan sekali, lalu ajak bermain tebak-tebakan
-          if (sudahSemua || jumlah() < HEWAN.length) return;
-          Sfx.benar();
-          konfeti();
-          $('.tab-btn[data-tab="tebak"]', layar).classList.add('ajak');
-          ucap('kiku', KENALAN.semua, null, 'senang');
-        });
-      }));
-    } else {
-      const g = GAME[tab];
-      const baca = () => putarUcapan(g.pembuka.map((x) => ({ s: g.tokoh, t: x })));
-      if (sapa) {
-        $('.tab-btn.aktif', layar).classList.add('ajak');
-        putarUcapan([{ s: 'kiku', t: MENU_AJAK }]);
-      } else baca();
-      $('#btnUlangPembuka').addEventListener('click', () => { Sfx.pilih(); baca(); });
-      $('#btnMulaiGame').addEventListener('click', () => {
-        Sfx.pop();
-        Suara.diam();
-        if (mulai) mulai(); else mainkan(tab, true);
+      bukaPenjelasan(h, () => {
+        // Ke-15 hewan sudah dikenal: pos Kenalan Yuk selesai, rayakan sekali
+        if (jumlah() < HEWAN.length || !tandaiSelesai('kenalan')) return;
+        Sfx.benar();
+        konfeti();
+        $('#btnKePeta').classList.add('ajak');
+        ucap('kiku', KENALAN.semua, null, 'senang');
       });
-    }
+    }));
   }
 
   // ================= PERMAINAN =================
   const bintangHTML = (no, total) => `<div class="progres">${Array.from({ length: total }, (_, i) => `<span class="${i < no ? 'isi' : ''}">★</span>`).join('')}</div>`;
 
-  // Pembuka game tampil di menu (tombol permainannya aktif); tombol Mulai menjalankan permainannya
-  let mulaiLangsung = false;
+  // Layar pembuka permainan: tokoh pemandu membacakan narasinya, lalu tombol Mulai
+  let lewatiPembuka = false;
   function layarPembukaGame(id, mulai) {
-    if (mulaiLangsung) { mulaiLangsung = false; mulai(); } else layarMenu(id, { mulai });
+    if (lewatiPembuka) { lewatiPembuka = false; mulai(); return; }
+    main = null;
+    Musik.mati();
+    const g = GAME[id];
+    const t = TOKOH[g.tokoh];
+    const m = MENU.find((x) => x.id === id);
+    tampil(`
+      <section class="cerita pembuka-game" style="--c:${m.warna}">
+        <img class="tokoh-besar" src="${t.gambar}" alt="${t.sebutan}" draggable="false">
+        <p class="cerita-sub">${m.ikon} ${t.sebutan}</p>
+        <h2 class="cerita-judul">${g.judul}</h2>
+        <div class="cerita-teks" style="--w:${t.warna}">${g.pembuka.map((x) => `<p>${x}</p>`).join('')}</div>
+        <div class="aksi">
+          <button class="btn-kecil" id="btnUlangPembuka">🔊 Dengar lagi</button>
+          <button class="btn-besar btn-main" id="btnMulaiGame">▶ Mulai</button>
+        </div>
+      </section>`);
+    const baca = () => putarUcapan(g.pembuka.map((x) => ({ s: g.tokoh, t: x })));
+    baca();
+    $('#btnUlangPembuka').addEventListener('click', () => { Sfx.pilih(); baca(); });
+    $('#btnMulaiGame').addEventListener('click', () => { Sfx.pop(); Suara.diam(); mulai(); });
   }
 
   function layarSelesaiGame(id, bintang, total, lanjut) {
@@ -1016,8 +1041,8 @@
     Suara.diam();
     Sfx.pop();
     tutupPenjelasan();
-    const dariMenu = !!$('.menu-utama', layar);
-    if (menuTab && !dariMenu) layarMenu(menuTab); else layarMulai();
+    const dariPeta = !!$('.menu', layar);
+    if (simpan.ambil('tc_menu', false) && !dariPeta && !$('.mulai', layar)) layarMenu(); else layarMulai();
   });
 
   $('#btnSuara').addEventListener('click', () => {
