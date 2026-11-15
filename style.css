@@ -901,9 +901,10 @@ button.kategori-judul:active { transform: scale(.98); }
 /* Tulisan petunjuk selalu di tengah dan berwarna gelap agar terbaca di atas awan */
 .petunjuk-kecil { text-align: center; color: var(--ungu); text-shadow: none; }
 @media (max-width: 640px) {
-  /* Tiga tombol di jendela penjelasan hewan muat dalam satu baris */
-  .panel.dongeng .panel-aksi { flex-wrap: nowrap; gap: 6px; width: 100%; }
-  .panel.dongeng .panel-aksi .btn-kecil { flex: 1 1 0; min-width: 0; padding: 10px 6px; font-size: 14px; white-space: nowrap; }
+  /* Jendela penjelasan hewan: "Suaranya" & "Dengar lagi" sebaris, "Tutup" lebar penuh di bawahnya */
+  .panel.dongeng .panel-aksi { flex-wrap: wrap; gap: 8px; width: 100%; }
+  .panel.dongeng .panel-aksi .btn-kecil { flex: 1 1 40%; min-width: 0; padding: 10px 8px; font-size: 15px; white-space: nowrap; }
+  .panel.dongeng .panel-aksi .btn-kecil.utama { flex-basis: 100%; }
 }
 /* Menu utama: laptop = satu baris; tablet = 3 + 2 dengan lebar sama */
 @media (min-width: 901px) {
@@ -922,4 +923,29 @@ button.kategori-judul:active { transform: scale(.98); }
 @media (min-width: 641px) {
   .kolam-hewan { display: flex; flex-wrap: wrap; justify-content: center; }
   .kolam-hewan .kartu-hewan { flex: 0 0 calc((100% - 7 * 10px) / 8); min-width: 0; }
+}
+/* Kartu pembuka permainan di menu: di HP dibuat ringkas agar tombol Mulai langsung terlihat */
+@media (max-width: 640px) {
+  .isi-menu .pembuka-game { padding: 12px 14px; gap: 6px; }
+  .isi-menu .tokoh-besar { width: 76px; }
+  .isi-menu .cerita-sub { font-size: 12px; }
+  .isi-menu .cerita-judul { font-size: 22px; }
+  .isi-menu .cerita-teks { gap: 6px; margin: 2px 0; }
+  .isi-menu .cerita-teks p { font-size: 14px; line-height: 1.4; }
+  .isi-menu .pembuka-game .aksi { margin-top: 4px; }
+  .isi-menu .pembuka-game .btn-besar { padding: 12px 30px; font-size: 22px; }
+  .isi-menu .pembuka-game .btn-kecil { padding: 11px 16px; font-size: 15px; }
+}
+/* Ruang kosong di bawah halaman cukup secukupnya, agar tombol tidak jatuh di bawah layar */
+#layar { padding-bottom: 36px; }
+/* Layar pendek (laptop / tablet tidur): kartu pembuka permainan dan soal dibuat ringkas */
+@media (min-width: 641px) and (max-height: 900px) {
+  .isi-menu .pembuka-game { flex-direction: row; flex-wrap: wrap; justify-content: center; column-gap: 18px; padding: 14px 22px; }
+  .isi-menu .pembuka-game .tokoh-besar { width: 92px; }
+  .isi-menu .pembuka-game .cerita-sub { display: none; }
+  .isi-menu .pembuka-game .cerita-judul { font-size: 28px; }
+  .isi-menu .pembuka-game .cerita-teks, .isi-menu .pembuka-game .aksi { flex-basis: 100%; }
+  .isi-menu .pembuka-game .cerita-teks p { font-size: 17px; }
+  .gambar-tanya .foto, .gambar-tanya.misteri span { width: 110px; height: 110px; }
+  .progres { margin-bottom: 4px; }
 }

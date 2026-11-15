@@ -105,7 +105,7 @@ const MAKANAN = {
 // penjelasan = dibacakan Kiku saat judul kelompok di Kenalan Yuk disentuh
 const KELOMPOK = {
   karnivora: { nama: 'Karnivora', ket: 'Pemakan daging', ikon: '🍖', warna: '#c92a2a', penjelasan: 'Karnivora adalah hewan pemakan daging.' },
-  omnivora: { nama: 'Omnivora', ket: 'Pemakan tumbuhan dan hewan', ikon: '🍽️', warna: '#e8590c', penjelasan: 'Omnivora adalah hewan pemakan tumbuhan dan juga hewan.' },
+  omnivora: { nama: 'Omnivora', ket: 'Pemakan tumbuhan dan daging', ikon: '🍽️', warna: '#e8590c', penjelasan: 'Omnivora adalah hewan pemakan tumbuhan dan juga daging.' },
   herbivora: { nama: 'Herbivora', ket: 'Pemakan tumbuhan', ikon: '🌿', warna: '#2f9e44', penjelasan: 'Herbivora adalah hewan pemakan tumbuhan.' },
 };
 
